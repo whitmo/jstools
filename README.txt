@@ -2,13 +2,12 @@
  JSTools
 =========
 
-'JSTools' is a collection of utilities used by the openlayers
-development team for managing javascript.
+'JSTools' is a collection of utilities for managing JavaScript libraries.
 
 Install
 =======
 
-until jstools is released into pypi, we suggest checking out jstools
+Until jstools is released into pypi, we suggest checking out jstools
 and installing using either 'python setup.py install' or 'python
 setup.py develop' from within your checkout.
 
@@ -19,8 +18,8 @@ Scripts
 jsbuild
 -------
 
-merges and compresses files according to a configuration file.
-JSbuild will walk each root directory specified in configuration,
+Merges and compresses files according to a configuration file.
+jsbuild will walk each root directory specified in configuration,
 index all the files ending with .js and then compile an aggregate
 source based on the specification in the config file and the
 dependencies declared inside the files themselves.
@@ -29,21 +28,21 @@ dependencies declared inside the files themselves.
 Usage
 ~~~~~
 
-jsbuild /path/to/config /path/to/outputdir
+jsbuild <config_file> [options]
 
 Options
 +++++++
 
 Options:
-  -h, --help            show this help message and exit
-  -u, --uncompress      Don't compresses aggregated javascript
-  -v, --verbose         print more info
-  -o OUTPUT_DIR, --output=OUTPUT_DIR
-                        Output directory
-  -r RESOURCE_DIR, --resource=RESOURCE_DIR
-                        resource base directory (used for interpolation)
-  -s SINGLE_FILE, --single=SINGLE_FILE
-                        Only create file for this section (see below)
+  -h [--help]            show this help message and exit
+  -u [--uncompress]      Don't compresses aggregated javascript
+  -v [--verbose]         print more info
+  -o [--output=] OUTPUT_DIR
+                         Output directory
+  -r [--resource=] RESOURCE_DIR
+                         resource base directory (used for interpolation)
+  -s [--single=] SECTION
+                         Only create file for this section (see below)
 
 Configuration Format
 ~~~~~~~~~~~~~~~~~~~~
@@ -66,7 +65,7 @@ last=
 
 exclude=
       3rd/logger.js
-...
+#...
 
 
 The files listed in the `first` section will be forced to load
@@ -86,11 +85,12 @@ Lines commented using '#' will be ignored.
 Dependency Syntax
 ~~~~~~~~~~~~~~~~~
 
-Filemerging uses cues inside the canidate javascript files to
-determine dependencies.
+File merging uses cues inside the candidate javascript files to
+determine dependencies.  Two types of dependencies are specified 
+with two different comment formats within source files.
 
-Dependencies are specified with a comment of the following format in
-the javascript source file:
+To specify that a target files must be included before a given 
+source file, include a comment of the following format:
 
      // @requires <file path>
 
@@ -98,12 +98,19 @@ the javascript source file:
 
     // @requires Geo/DataSource.js
 
+To specify that a target file must be included at any place
+in the merged build - before or after a given source file - 
+include a comment in the source file of the following format:
 
-License
-~~~~~~~
--- Copyright 2005-2007 MetaCarta, Inc. / OpenLayers project --
+    // @include <file path>
 
+  e.g.
 
+    // @include Geo/DataSource.js
+
+Note that the "exclude" list in a configuration file will 
+override dependencies specified by the @requires and @include
+comment directives described above.
 
 jsmin
 -----
@@ -123,11 +130,6 @@ License
 
 see file for complete copyright
 
-
-shrinksafe
-----------
-
-not currently supported
 
 Buildout Support
 ================
