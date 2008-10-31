@@ -1,3 +1,9 @@
+"""
+merge.py
+
+Copyright (c) 2008 OpenGeo. All rights reserved.
+"""
+
 from jstools import jsmin
 from jstools import tsort
 from ConfigParser import ConfigParser
@@ -6,7 +12,7 @@ import re
 import utils
     
 SUFFIX_JAVASCRIPT = ".js"
-RE_REQUIRE = re.compile("@requires (.*)\n") # TODO: Ensure in comment?
+RE_REQUIRE = re.compile("@requires (.*)\n")
 RE_INCLUDE = re.compile("@include (.*)\n")
 
 _marker = object()

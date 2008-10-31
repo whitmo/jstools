@@ -1,5 +1,9 @@
-#!/usr/bin/env python
-"""tsort.py - Sorts dictonary keys based on lists of dependencies."""
+"""
+tsort.py
+Sorts dictionary keys based on lists of dependencies.
+
+Copyright (c) 2008 OpenGeo. All rights reserved.
+"""
 
 class MissingDependency(Exception):
     """Exception raised when a listed dependency is not in the dictionary."""

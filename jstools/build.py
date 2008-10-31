@@ -1,3 +1,9 @@
+"""
+build.py
+
+Copyright (c) 2008 OpenGeo. All rights reserved.
+"""
+
 from jstools.merge import Merger
 from jstools.utils import arg_parser, printer as printer_factory
 import optparse

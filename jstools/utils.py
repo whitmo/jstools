@@ -1,3 +1,9 @@
+"""
+utils.py
+
+Copyright (c) 2008 OpenGeo. All rights reserved.
+"""
+
 from decorator import decorator
 import sys
 
