@@ -1,0 +1,23 @@
+The ``jsmin`` module
+====================
+
+Using ``jsmin``
+---------------
+
+    >>> from jstools.jsmin import jsmin
+
+Minify some sample JavaScript:
+
+    >>> js = """
+    ... var foo = function(arg1, arg2) {
+    ...     // run this to foo
+    ...     return arg1 + arg2;
+    ... };
+    ... /**
+    ...  * This is a big comment block
+    ...  */
+    ... var bar = foo(1, 2);  // nothing to see here
+    ... """
+
+    >>> jsmin(js)
+    'var foo=function(arg1,arg2){return arg1+arg2;};var bar=foo(1,2);'
