@@ -17,6 +17,9 @@ RE_INCLUDE = re.compile("@include (.*)\n")
 
 _marker = object()
 
+class MissingImport(Exception):
+    """Exception raised when a listed import is not found in the lib."""
+
 class Merger(ConfigParser):
     def __init__(self, output_dir, defaults=None, printer=lambda x: None):
         ConfigParser.__init__(self, defaults)
@@ -77,7 +80,13 @@ class Merger(ConfigParser):
                      for item in order
                      if ((item not in cfg['first']) and
                          (item not in cfg['last']))] + cfg['last']
-
+        
+        ## Make sure all imports are in files dictionary
+        parts = ('first', 'include', 'last')
+        for part in parts:
+            for fp in cfg[part]:
+                if not fp in cfg['exclude'] and not files.has_key(fp):
+                    raise MissingImport("File from '%s' not found: %s" % (part, fp))
 
         ## Header inserted at the start of each file in the output
         HEADER = "/* " + "=" * 70 + "\n    %s\n" + "   " + "=" * 70 + " */\n\n"
