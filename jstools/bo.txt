@@ -1,0 +1,63 @@
+====================
+ ZC Buildout Recipe
+====================
+
+JSTools ships with a zc.buildout recipe for compiling javascript
+library sources.  The buildout works similarily to the jsbuild,
+writing concatenated and compressed files from a declarative config.
+
+
+
+Buildout Format
+===============
+
+Variables
+---------
+
+ * output-dir -- path to where final 
+     should be written.
+
+ * compress -- True or False, minify output files
+
+ * config -- path to jsbuild config file
+
+ * resource-dir -- not required, used for interpolation of jsbuild config
+
+ * only -- output concatenated file for only this section of the 'config'
+
+ * output -- (for use with only) write file to this name
+
+Examples
+--------
+
+Basic example::
+
+[build-js]
+recipe=JSTools:buildjs
+resource-dir=${buildout:develop-dir}/${client:folder-name}
+config=${build-js:resource-dir}/all.cfg 
+output-dir=${build-js:resource-dir}/script
+compress=True
+...
+
+Single file without compression. 'only' defines the section of the
+jsbuild config file to build, 'output' defines the file created.
+(untested feature)::
+
+[build-js]
+recipe=JSTools:buildjs
+resource-dir=${buildout:develop-dir}/${client:folder-name}
+config=${build-js:resource-dir}/all.cfg 
+output-dir=${build-js:resource-dir}/script
+only=OpenLayers.js
+output=${build-js:output-dir}/OL-uncompressed.js
+compress=False
+...
+
+Notes
+=====
+
+ * All variables set in the config for the recipe are available for
+   interpolation, with a few caveats.
+
+ * compression defaults to False

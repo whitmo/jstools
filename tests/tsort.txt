@@ -1,0 +1,27 @@
+The ``tsort`` module
+====================
+
+Using ``sort``
+--------------
+
+    >>> from jstools.tsort import sort
+
+Sort a simple dependency dictionary:
+
+    >>> dependencies = dict(wisdom=["age", "experience"], age=["time"], experience=[], time=[])
+    >>> sort(dependencies)
+    ('time', 'age', 'experience', 'wisdom')
+
+Sort an example with a circular dependency (order forced):
+
+    >>> dependencies = dict(money=["opportunity", "education"], education=["money"], opportunity=["luck"], luck=[])
+    >>> sort(dependencies)
+    ('luck', 'opportunity', 'education', 'money')
+    
+Sort an example with a missing dependency (MissingDependency raised):
+
+    >>> dependencies = dict(vegas=["gambling"], gambling=["luck"])
+    >>> sort(dependencies)
+    Traceback (most recent call last):
+        ...
+    MissingDependency: luck
