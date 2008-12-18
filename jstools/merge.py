@@ -7,34 +7,46 @@ Copyright (c) 2008 OpenGeo. All rights reserved.
 from jstools import jsmin
 from jstools import tsort
 from ConfigParser import ConfigParser
+import pkg_resources
 import os
 import re
 import utils
-    
+
+DIST = pkg_resources.Requirement.parse("jstools")    
 SUFFIX_JAVASCRIPT = ".js"
 RE_REQUIRE = re.compile("@requires (.*)\n")
 RE_INCLUDE = re.compile("@include (.*)\n")
 
 _marker = object()
 
+import logging
+logger = logging.getLogger('jstools.merge')
+
 class MissingImport(Exception):
     """Exception raised when a listed import is not found in the lib."""
 
 class Merger(ConfigParser):
-    def __init__(self, output_dir, defaults=None, printer=lambda x: None):
+    def __init__(self, output_dir, defaults=None, printer=logger.info):
         ConfigParser.__init__(self, defaults)
         self.output_dir = output_dir
         self.printer = printer
         
     @classmethod
-    def from_fn(cls, fn, output_dir, defaults=None, printer=lambda x: None):
+    def from_fn(cls, fn, output_dir, defaults=None, printer=logger.info):
         """Load up a list of config filenames in our merger"""
         merger = cls(output_dir, defaults=defaults, printer=printer)
         if isinstance(fn, basestring):
             fn = fn,
         fns = merger.read(fn)
         assert fns, ValueError("No valid config files: %s" %fns)
-        return merger        
+        return merger
+
+    @classmethod
+    def from_resource(cls, resource_name, output_dir, dist=DIST, defaults=None, printer=logger.info):
+        conf = pkg_resources.resource_stream(dist, resource_name)
+        merger = cls(output_dir, defaults=defaults, printer=printer)
+        merger.readfp(conf)
+        return merger
         
     def merge(self, cfg):
         sourcedir = cfg['root']
