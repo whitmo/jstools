@@ -2,6 +2,7 @@ import doctest
 import unittest
 import glob
 import os
+import utils
 
 optionflags = (doctest.REPORT_ONLY_FIRST_FAILURE |
                doctest.NORMALIZE_WHITESPACE |
@@ -20,6 +21,7 @@ def open_file(filename, mode='r'):
 def setUp(test):
     test.globs.update(dict(
             open_file = open_file,
+            utils = utils
             ))
 
 def test_suite():
@@ -30,6 +32,10 @@ def test_suite():
          for filename
          in list_doctests()])
 
-if __name__ == "__main__":
+
+def test_run():
     runner = unittest.TextTestRunner(verbosity=1)
-    runner.run(test_suite())
+    runner.run(test_suite())    
+
+if __name__ == "__main__":
+    test_run()
