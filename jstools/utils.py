@@ -3,7 +3,8 @@ utils.py
 
 Copyright (c) 2008 OpenGeo. All rights reserved.
 """
-
+from ConfigParser import NoSectionError
+from UserDict import DictMixin
 from decorator import decorator
 import sys
 
@@ -22,3 +23,27 @@ def printer(verbosity):
         if int(verbosity) >= threshold:
             print txt
     return _printer
+
+
+class SectionMap(DictMixin):
+    def __init__(self, cp, section):
+        if not cp.has_section(section):
+            raise NoSectionError("%s does not exist in %s" %(section, cp))
+        self.cp = cp
+        self.section = section
+
+    @property
+    def section_items(self):
+        return self.cp.items(self.section)
+    
+    def __getitem__(self, key):
+        return dict(self.section_items)[key]
+
+    def __delitem__(self, key):
+        self.cp.remove_option(self.section, key)
+
+    def __setitem__(self, key, value):
+        self.cp.set(self.section, key, value)
+
+    def keys(self):
+        return dict(self.section_items).keys()
