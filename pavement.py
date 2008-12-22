@@ -28,7 +28,8 @@ jstools_bunch = Bunch(
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
     zip_safe=False,
-    install_requires=["decorator"],
+    install_requires=["decorator",
+                      "plone.memoize"],
     entry_points="""
     [zc.buildout]
     default=jstools.bo:BuildJS
