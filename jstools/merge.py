@@ -30,6 +30,7 @@ class Merger(ConfigParser):
         ConfigParser.__init__(self, defaults)
         self.output_dir = output_dir
         self.printer = printer
+        self.reverse_included = dict()
         
     @classmethod
     def from_fn(cls, fn, output_dir, defaults=None, printer=logger.info):
@@ -47,24 +48,25 @@ class Merger(ConfigParser):
         merger = cls(output_dir, defaults=defaults, printer=printer)
         merger.readfp(conf)
         return merger
-        
-    def merge(self, cfg):
+
+    def make_sourcefile(self, filepath):
+        self.printer("Importing: %s" % filepath)
+        return SourceFile(sourcedir, filepath, cfg['exclude'])
+    
+    def merge(self, cfg, depmap=None):
         sourcedir = cfg['root']
 
-        files = {}
+        #files = {}
 
         # assemble all files in source directory according to config
         include = cfg.get('include', False)
-        for root, dirs, entries in os.walk(sourcedir):
-            for filename in entries:
-                if filename.endswith(SUFFIX_JAVASCRIPT) and not filename.startswith("."):
-                    filepath = os.path.join(root, filename)[len(sourcedir)+1:]
-                    filepath = filepath.replace("\\", "/")
-                    if (include and filepath in
-                            (cfg['first'] + cfg['include'] + cfg['last'])) or (
-                            not include and filepath not in cfg['exclude']):
-                        self.printer("Importing: %s" % filepath)
-                        files[filepath] = SourceFile(sourcedir, filepath, cfg['exclude'])
+
+        #@@ this make break
+        all_inc = (cfg['first'] + cfg['include'] + cfg['last'])
+        files = dict((filepath, self.make_sourcefile(filepath)) \
+                    for filepath in jsfiles_for_dir(sourcedir) \
+                    if (include and filepath in all_inc or \
+                        (not include and filepath not in cfg['exclude'])))
 
         # ensure all @include and @requires references are in
         complete = False
@@ -166,9 +168,11 @@ class Merger(ConfigParser):
 class SourceFile(object):
     """
     Represents a Javascript source code file.
+
+    -- use depmap if given
     """
 
-    def __init__(self, sourcedir, filepath, exclude):
+    def __init__(self, sourcedir, filepath, exclude, depmap=None):
         """
         """
         self.filepath = filepath
@@ -176,6 +180,7 @@ class SourceFile(object):
         self.source = open(os.path.join(sourcedir, filepath), "U").read()
         self._requires = _marker
         self._include = _marker
+        self.depmap = depmap
 
     @property
     def requires(self):
@@ -185,8 +190,8 @@ class SourceFile(object):
         """
         req = getattr(self, '_requires', None)
         if req is _marker:
-            self._requires = filter(lambda x: x not in self.exclude,
-                                    RE_REQUIRE.findall(self.source))
+            self._requires = [x for x in RE_REQUIRE.findall(self.source)\
+                              if x not in self.exclude]
         return self._requires
 
     @property
@@ -196,8 +201,15 @@ class SourceFile(object):
         """
         req = getattr(self, '_include', None)
         if req is _marker:
-            self._include = filter(lambda x: x not in self.exclude,
-                                   RE_INCLUDE.findall(self.source))
+            self._include = [x for x in RE_INCLUDE.findall(self.source) \
+                             if x not in self.exclude]
+                                   
         return self._include
 
-
+def jsfiles_for_dir(sourcedir, jssuffix=SUFFIX_JAVASCRIPT):
+    for root, dirs, entries in os.walk(sourcedir):
+        for filename in entries:
+            if filename.endswith(jssuffix) and not filename.startswith("."):
+                filepath = os.path.join(root, filename)[len(sourcedir)+1:]
+                filepath = filepath.replace("\\", "/")
+                yield filepath
