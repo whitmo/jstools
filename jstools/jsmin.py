@@ -61,6 +61,7 @@ class JavascriptMinify(object):
 
     def _outA(self):
         self.outstream.write(self.theA)
+        
     def _outB(self):
         self.outstream.write(self.theB)
 
