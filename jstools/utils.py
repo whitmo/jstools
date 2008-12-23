@@ -7,7 +7,9 @@ from ConfigParser import NoSectionError
 from UserDict import DictMixin
 from decorator import decorator
 import sys
+import logging
 
+logger = logging.getLogger('jstools')
 
 def arg_parser(optparser):
     @decorator
@@ -21,7 +23,7 @@ def arg_parser(optparser):
 def printer(verbosity):
     def _printer(txt, threshold=1):
         if int(verbosity) >= threshold:
-            print txt
+            logger.info(txt)
     return _printer
 
 
