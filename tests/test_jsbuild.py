@@ -4,15 +4,11 @@ import os
 
 libdir, tempdir = None, None
 
-
-
-def setup(mod):
-    mod.tempdir, mod.libdir = testutils.setup_temp_dir()
-
-def file_tree():
-    merger = testutils.load_config('basic', libdir)
+def file_tree(conf='basic', depcfg='data/deps1.cfg'):
+    tempdir, libdir = testutils.setup_temp_dir()
+    merger = testutils.load_config(conf, libdir)
     handles = testutils.setup_dir(merger, prefix=libdir)
-    depmap = deps.DepMap.from_resource("data/deps-circular.cfg")
+    depmap = deps.DepMap.from_resource(depcfg)
     files = [x for x in testutils.inject_deps(handles, libdir, depmap)]
     merger.set('Output.js', 'root', libdir)
     license_path = os.path.join(libdir, "license.txt")
@@ -22,8 +18,22 @@ def file_tree():
     return merger
 
 def test_circular_deps_config():
-    merger = file_tree()
+    merger = file_tree(depcfg="data/deps-circular.cfg")
     # eventually we may add some sort of "strict" checking
     # but for now, the merg should run
     assert merger.run(uncompressed=True, single='Output.js')
 
+def test_exclude():
+    """
+    Exclude should trump all other declarations of dependency
+    """
+    merger = file_tree(conf='exclude')
+    out = merger.run(uncompressed=True, single='Output.js', strip_deps=True)
+    resfile = open(out[0])
+    results = resfile.readlines()
+    resfile.close()
+    for ln in range(len(results)):
+        # required
+        assert 'prototype.js' not in results[ln], ValueError(results[ln])
+        # included
+        assert 'api.js' not in results[ln], ValueError(results[ln])
