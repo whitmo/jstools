@@ -1,0 +1,62 @@
+=============
+ Basic merge
+=============
+
+This will do a simple merge on data/basic.cfg.  It will also
+demonstrate how to programmatically run jsbuild.
+
+    >>> from jstools import deps
+    >>> import os
+    >>> license = "### LICENSE ###"
+
+Set up a filetree with dependencies::
+
+    >>> tempdir, libdir = utils.setup_temp_dir()
+    >>> merger = utils.load_config('basic', libdir)
+    >>> handles = utils.setup_dir(merger, prefix=libdir)
+    >>> depmap = deps.DepMap.from_resource("data/deps1.cfg")
+    >>> files = [x for x in utils.inject_deps(handles, libdir, depmap)]
+
+Add a license::
+
+    >>> license_path = os.path.join(libdir, "license.txt")
+    >>> license_file = open(license_path, 'w')
+    >>> print >> license_file, license; license_file.close()
+
+
+Set the root directory and license::
+
+    >>> merger.set('Output.js', 'root', libdir)
+    >>> merger.set('Output.js', 'license', license_path)
+
+Do merge::
+    
+    >>> out = merger.run(uncompressed=True, single='Output.js')
+
+Now let's test the output::
+
+    >>> outfile = open(out[0])
+    >>> print outfile.read()
+    ### LICENSE ###
+    /* ======================================================================
+        3rd/prototype.js
+       ====================================================================== */...
+    var filename='3rd/prototype.js';
+    /* ======================================================================
+        core/application.js
+       ====================================================================== */...
+    // @include core/api.js
+    // @include core/params.js
+    // @requires 3rd/prototype.js
+    var filename='core/application.js';
+    /* ======================================================================
+        core/params.js
+       ====================================================================== */...
+    // @include core/api.js
+    // @requires 3rd/prototype.js
+    var filename='core/params.js';
+    /* ======================================================================
+        core/api.js
+       ====================================================================== */...
+    // @requires core/application.js
+    var filename='core/api.js';...    
