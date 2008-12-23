@@ -49,9 +49,9 @@ class Merger(ConfigParser):
         merger.readfp(conf)
         return merger
 
-    def make_sourcefile(self, filepath):
+    def make_sourcefile(self, sourcedir, filepath, exclude):
         self.printer("Importing: %s" % filepath)
-        return SourceFile(sourcedir, filepath, cfg['exclude'])
+        return SourceFile(sourcedir, filepath, exclude)
     
     def merge(self, cfg, depmap=None):
         sourcedir = cfg['root']
@@ -60,12 +60,12 @@ class Merger(ConfigParser):
 
         # assemble all files in source directory according to config
         include = cfg.get('include', False)
-
+        exclude = cfg['exclude']
         all_inc = (cfg['first'] + cfg['include'] + cfg['last'])
-        files = dict((filepath, self.make_sourcefile(filepath)) \
+        files = dict((filepath, self.make_sourcefile(sourcedir, filepath, exclude)) \
                     for filepath in jsfiles_for_dir(sourcedir) \
                     if (include and filepath in all_inc or \
-                        (not include and filepath not in cfg['exclude'])))
+                        (not include and filepath not in exclude)))
 
         # ensure all @include and @requires references are in
         complete = False
