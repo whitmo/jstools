@@ -45,18 +45,15 @@ Now let's test the output::
     /* ======================================================================
         core/application.js
        ====================================================================== */...
-    // @include core/api.js
-    // @include core/params.js
-    // @requires 3rd/prototype.js
     var filename='core/application.js';
     /* ======================================================================
         core/params.js
        ====================================================================== */...
-    // @include core/api.js
-    // @requires 3rd/prototype.js
     var filename='core/params.js';
     /* ======================================================================
         core/api.js
        ====================================================================== */...
-    // @requires core/application.js
-    var filename='core/api.js';...    
+    var filename='core/api.js';...
+
+
+

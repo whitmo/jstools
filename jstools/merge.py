@@ -10,12 +10,13 @@ from ConfigParser import ConfigParser
 import pkg_resources
 import os
 import re
-import utils
 
 DIST = pkg_resources.Requirement.parse("jstools")    
 SUFFIX_JAVASCRIPT = ".js"
 RE_REQUIRE = re.compile("@requires (.*)\n")
 RE_INCLUDE = re.compile("@include (.*)\n")
+
+DEP_LINE = re.compile("^// @[include|requires]")
 
 _marker = object()
 
@@ -55,8 +56,6 @@ class Merger(ConfigParser):
     
     def merge(self, cfg, depmap=None):
         sourcedir = cfg['root']
-
-        #files = {}
 
         # assemble all files in source directory according to config
         include = cfg.get('include', False)
@@ -134,7 +133,11 @@ class Merger(ConfigParser):
             cfg.setdefault(key, None)
         return cfg
 
-    def run(self, uncompressed=False, single=None):
+    def strip_deps(self, merged):
+        #@@ make optional?
+        return "\n".join(x for x in merged.split('\n') if not DEP_LINE.match(x))
+
+    def run(self, uncompressed=False, single=None, strip_deps=True):
         sections = self.sections()
         if single is not None:
             assert single in sections, ValueError("%s not in %s" %(single, sections))
@@ -148,6 +151,8 @@ class Merger(ConfigParser):
             if not uncompressed:
                 self.printer("Compressing...")
                 merged = jsmin.jsmin(merged)
+            elif strip_deps:
+                merged = self.strip_deps(merged)
                 
             if cfg.has_key('output'):
                 outputfilename = cfg['output']
