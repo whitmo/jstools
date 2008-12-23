@@ -17,3 +17,14 @@ Multiple Library Build Tests
 
 * test against name collisions
 
+
+Coverage
+========
+
+could be improved::
+
+* jstools.jsmin 
+
+* jstools.deps
+
+* jstools.utils
