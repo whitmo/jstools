@@ -1,0 +1,76 @@
+=================================
+ Dependency Mapping and Handling
+=================================
+
+jstools comes with some basic classes for creating dependency maps and
+using to do various operations such as injection dependencies into
+existing files.
+
+
+File tree creation and dependency injection
+===========================================
+
+Create a file tree to emulate a typical javascript package::
+
+    >>> from jstools import deps
+    >>> libdir, tempdir = utils.setup_temp_dir()
+    >>> merger = utils.load_config('basic', libdir)
+    >>> handles = utils.setup_dir(merger, prefix=libdir)
+
+Inject dependencies from the dependency map "dep1.cfg"::
+
+    >>> depmap = deps.DepMap.from_resource("data/deps1.cfg")
+    >>> filenames = utils.inject_deps(handles, libdir, depmap)
+
+Let's audit the results file creation and the dependency injection.
+
+ * application.js::
+
+    >>> print "".join(open(filenames.next()).readlines())
+    // @include core/api.js
+    // @include core/params.js
+    // @requires 3rd/prototype.js
+    var filename='core/application.js';
+
+ * param.js::
+
+    >>> print "".join(open(filenames.next()).readlines())
+    // @include core/api.js
+    // @requires 3rd/prototype.js
+    var filename='core/params.js';
+
+ * api.js
+
+    >>> print "".join(open(filenames.next()).readlines())
+    // @requires core/application.js
+    var filename='core/api.js';
+
+Detecting alias mismatch or error
+---------------------------------
+
+If an alias is misspelled or misnamed in the alias section of the
+dependency config, an AliasNotFound error should be thrown when
+attempting to iterate over formatted dependency includes for an file
+including the bogus alias.
+
+Get a fresh filetree::
+
+    >>> libdir, tempdir = utils.setup_temp_dir()
+    >>> handles = utils.setup_dir(merger, prefix=libdir)
+
+Inject dependencies from the dependency map
+"deps2-mismatch.cfg". 'core/api.js' should break when attempting to
+format dependencies::
+
+    >>> depmap = deps.DepMap.from_resource("data/deps2-mismatch.cfg")
+    >>> alias = depmap.guess_alias_by_filename('api.js')
+    >>> depmap.formatted_dependencies(alias).next()
+    Traceback (most recent call last):
+    ...
+    AliasNotFound: "Alias 'core_application' not found in ['core_api', 'core_app', 'prototype', 'core_param']. Check dependency cfg for alias mismatch."
+
+
+
+
+
+

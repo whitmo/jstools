@@ -12,6 +12,20 @@ and installing using either 'python setup.py install' or 'python
 setup.py develop' from within your checkout.
 
 
+Alternate Install
+-----------------
+
+$ cd /your/javascript/distribution
+$ wget http://github.com/whitmo/jstools/raw/master/install.py
+$ python install.py
+
+This will safely turn your distribution folder into a python
+environment with the jstools scripts installed in
+'/your/javascript/distribution/bin'.
+
+$ bin/jsbuild
+$ bin/jsmin
+
 Scripts
 =======
 
@@ -131,8 +145,37 @@ License
 see file for complete copyright
 
 
+License
+=======
+
+Mixed. same as OpenLayers unless otherwhise noted
+
+
 Buildout Support
 ================
 
 see jsbuild/bo.txt
 
+
+Run Tests
+=========
+
+if you are using the included env.py::
+
+ python setup.py nosetests
+
+otherwhise, you will need to install 'nose' and run the same command.
+
+
+Credits
+=======
+
+jstools started as a collection of build scripts as part of the
+OpenLayers Project[#]_.
+
+Whit Morriss (whit at opengeo.org) repackaged these scripts as jstools
+and Tim Schaub (tschaub at opengeo.org) did extensive reworking of the build script.
+
+
+[1] `OpenLayers Homepage <http://www.openlayers.org>`_ and `the
+original scripts <http://svn.openlayers.org/trunk/openlayers/tools/>`_

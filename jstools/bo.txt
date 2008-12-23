@@ -8,8 +8,6 @@ writing concatenated and compressed files from a declarative config.
 
 
 
-
-
 Buildout Format
 ===============
 
