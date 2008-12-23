@@ -2,24 +2,18 @@
  Things to get tested
 ======================
 
-* pseudo file tree
-  - var filename
-  - parse output
-
-* right inclusion
-
-* exercise config options
+Ordering
+========
 
 * requires... always before
 
 * includes : anywhere
 
-* exclude : overrides inc or req
-  config file trumps
 
-- exceptions
+Multiple Library Build Tests
+============================
 
-- config map
- 
+* 2 file trees
 
+* test against name collisions
 
