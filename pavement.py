@@ -57,9 +57,5 @@ def develop():
     call_task("setuptools.command.develop")    
 
 
-@task
-def install():
-    """install jstools w/ all dependencies"""
-    call_task("setuptools.command.install")
 
 
