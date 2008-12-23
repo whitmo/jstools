@@ -1,5 +1,6 @@
 import utils as testutils
-from jstools import deps
+from jstools import deps, merge
+import pkg_resources
 import os
 
 libdir, tempdir = None, None
@@ -37,3 +38,10 @@ def test_exclude():
         assert 'prototype.js' not in results[ln], ValueError(results[ln])
         # included
         assert 'api.js' not in results[ln], ValueError(results[ln])
+
+
+def test_merger_by_file():
+    DIST = pkg_resources.Requirement.parse("jstools")
+    filename = pkg_resources.resource_filename(DIST, "data/basic.cfg")
+    assert merge.Merger.from_fn(filename, "/tmp")
+    assert merge.Merger.from_fn([filename], "/tmp")
