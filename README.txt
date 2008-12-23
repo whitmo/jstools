@@ -12,8 +12,8 @@ and installing using either 'python setup.py install' or 'python
 setup.py develop' from within your checkout.
 
 
-Alternate Install
------------------
+Script Install
+--------------
 
 $ cd /your/javascript/distribution
 $ wget http://github.com/whitmo/jstools/raw/master/install.py
