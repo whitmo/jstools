@@ -44,7 +44,7 @@ jstools_bunch = Bunch(
 
 virtualenv = Bunch(
         script_name="install.py",
-        packages_to_install=["nose"],
+        packages_to_install=["nose", "http://github.com/whitmo/jstools/tarball/master#egg=jstools"],
         paver_command_line="develop"
         ) 
 

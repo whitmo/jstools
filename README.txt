@@ -36,18 +36,19 @@ You can download jstools in whatever flavor your prefer::
  $ svn co http://svn.opengeo.org/jstools/trunk/
  $ git clone git://github.com/whitmo/jstools.git
 
+
 Global Install
 ``````````````
 
-Depending on your python install, you could use any of the urls above
-and easy_install::
+Depending on your python install (and setuptools plugins), you could
+use any of the urls above and easy_install::
 
-  $ easy_install jstool-url-above
+  $ sudo easy_install jstool-url-above
 
 If you've downloaded the code, the following command from inside the
 distribution will take care of global installation::
 
-  $ python setup.py install
+  $ sudo python setup.py install
 
 
 Scripts
