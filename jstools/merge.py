@@ -74,8 +74,7 @@ class Merger(ConfigParser):
                 for path in info.include + info.requires:
                     if path not in cfg['exclude'] and not files.has_key(path):
                         complete = False
-                        self.printer("Importing: %s" % path)
-                        files[path] = SourceFile(sourcedir, path, cfg['exclude'])
+                        files[path] = self.make_sourcefile(sourcedir, path, exclude)
         
         # create list of dependencies
         dependencies = {}
