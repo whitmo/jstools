@@ -20,11 +20,35 @@ $ wget http://github.com/whitmo/jstools/raw/master/install.py
 $ python install.py
 
 This will safely turn your distribution folder into a python
-environment with the jstools scripts installed in
+environment [#]_ with the jstools scripts installed in
 '/your/javascript/distribution/bin'.
 
 $ bin/jsbuild
 $ bin/jsmin
+
+
+Other Install Options
+---------------------
+
+You can download jstools in whatever flavor your prefer::
+
+ $ wget http://github.com/whitmo/jstools/tarball/master
+ $ svn co http://svn.opengeo.org/jstools/trunk/
+ $ git clone git://github.com/whitmo/jstools.git
+
+Global Install
+``````````````
+
+Depending on your python install, you could use any of the urls above
+and easy_install::
+
+  $ easy_install jstool-url-above
+
+If you've downloaded the code, the following command from inside the
+distribution will take care of global installation::
+
+  $ python setup.py install
+
 
 Scripts
 =======
@@ -174,8 +198,17 @@ jstools started as a collection of build scripts as part of the
 OpenLayers Project[#]_.
 
 Whit Morriss (whit at opengeo.org) repackaged these scripts as jstools
-and Tim Schaub (tschaub at opengeo.org) did extensive reworking of the build script.
+and Tim Schaub (tschaub at opengeo.org) did extensive reworking of tsort.
 
 
-[1] `OpenLayers Homepage <http://www.openlayers.org>`_ and `the
+[1] See 'virtualenv <http://pypi.python.org/pypi/virtualenv>'_ for more
+information about the python environment.  You may activate and
+deactivate this environment to add the installed scripts to your path,
+localize python package installs and other niceties ala::
+
+ $ source bin/activate
+ $ deactivate
+
+[2] `OpenLayers Homepage <http://www.openlayers.org>`_ and `the
 original scripts <http://svn.openlayers.org/trunk/openlayers/tools/>`_
+
