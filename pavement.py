@@ -42,7 +42,7 @@ jstools_bunch = Bunch(
     )
 
 virtualenv = Bunch(
-        script_name="env.py",
+        script_name="install.py",
         packages_to_install=["nose"],
         paver_command_line="develop"
         ) 

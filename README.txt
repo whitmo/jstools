@@ -11,9 +11,20 @@ Until jstools is released into pypi, we suggest checking out jstools
 and installing using either 'python setup.py install' or 'python
 setup.py develop' from within your checkout.
 
-Running 'python env.py' will turn the jstools checkout into a self
-contained python userland with jstools installed on the python
-path. The scripts are 
+
+Alternate Install
+-----------------
+
+$ cd /your/javascript/distribution
+$ wget http://github.com/whitmo/jstools/raw/master/install.py
+$ python install.py
+
+This will safely turn your distribution folder into a python
+environment with the jstools scripts installed in
+'/your/javascript/distribution/bin'.
+
+$ bin/jsbuild
+$ bin/jsmin
 
 Scripts
 =======
