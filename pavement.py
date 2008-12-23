@@ -45,7 +45,6 @@ jstools_bunch = Bunch(
 virtualenv = Bunch(
         script_name="install.py",
         packages_to_install=["nose", "http://github.com/whitmo/jstools/tarball/master#egg=jstools"],
-        paver_command_line="develop"
         ) 
 
 options(setup=jstools_bunch, virtualenv=virtualenv)
@@ -55,7 +54,6 @@ options(setup=jstools_bunch, virtualenv=virtualenv)
 def develop():
     """Install all dependencies and develop install jstools"""
     call_task("setuptools.command.develop")    
-
 
 
 
