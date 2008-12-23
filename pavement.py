@@ -6,6 +6,7 @@ except :
 
 from paver.defaults import task, options, Bunch
 #from paver.defaults import sh, needs
+from paver.defaults import cmdopts, consume_args 
 from paver.runtime import call_task #debug, 
 from setuptools import find_packages
 
@@ -50,11 +51,15 @@ virtualenv = Bunch(
 options(setup=jstools_bunch, virtualenv=virtualenv)
 
 @task
+@cmdopts([("uninstall", "u", "undo develop linking")])
 def develop():
     """Install all dependencies and develop install jstools"""
     call_task("setuptools.command.develop")    
+
 
 @task
 def install():
     """install jstools w/ all dependencies"""
     call_task("setuptools.command.install")
+
+
