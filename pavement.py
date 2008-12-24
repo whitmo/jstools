@@ -10,7 +10,7 @@ from paver.defaults import cmdopts, consume_args
 from paver.runtime import call_task #debug, 
 from setuptools import find_packages
 
-version = '0.1'
+version = '0.1b'
 
 description = ''.join([x for x in open('README.txt')])
 #+ ''.join([x for x in open('CREDITS.txt')]),
