@@ -5,7 +5,6 @@ except :
     pass
 
 from paver.defaults import task, options, Bunch
-#from paver.defaults import sh, needs
 from paver.defaults import cmdopts, consume_args 
 from paver.runtime import call_task #debug, 
 from setuptools import find_packages
