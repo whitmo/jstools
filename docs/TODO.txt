@@ -1,0 +1,27 @@
+=======
+ Todo
+=======
+
+
+Priority
+========
+
+ * concatenation config
+
+ * yui_compressor
+
+ * single file version on jsbuild + ziplib
+
+ * sphinx documentation
+
+ * single file build from html file
+ 
+
+Blue Sky
+========
+
+ * server with file watching, automatic compression on serve
+
+ * svn/git checkout and build
+ 
+
