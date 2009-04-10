@@ -1,7 +1,7 @@
 from ConfigParser import ConfigParser
 from ConfigParser import NoSectionError
 from jstools import utils, merge
-from plone.memoize import instance
+from memoize import memoizedproperty
 import logging
 import pkg_resources
 
@@ -21,7 +21,7 @@ class DepMap(ConfigParser):
         ConfigParser.__init__(self, defaults)
         self.printer = printer
 
-    @instance.memoizedproperty
+    @memoizedproperty
     def alias_map(self):
         return utils.SectionMap(self, 'alias')
         
@@ -41,7 +41,7 @@ class DepMap(ConfigParser):
         assert paths, ValueError("No valid config files: %s" %paths)
         return dmap
 
-    @instance.memoizedproperty
+    @memoizedproperty
     def reverse_alias_map(self):
         return dict((v, k) for k, v in self.alias_map.items())
     
