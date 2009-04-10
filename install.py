@@ -955,10 +955,8 @@ def after_install(options, home_dir):
         bin_dir = join(home_dir, 'Scripts')
     else:
         bin_dir = join(home_dir, 'bin')
-    subprocess.call([join(bin_dir, 'easy_install'), 'paver==0.8.1'])
-    subprocess.call([join(bin_dir, 'easy_install'), 'nose'])
-    subprocess.call([join(bin_dir, 'easy_install'), 'http://github.com/whitmo/jstools/tarball/master#egg=jstools'])
-    subprocess.call([join(bin_dir, 'paver'),'develop'])
+    subprocess.call([join(bin_dir, 'easy_install'), 'paver==1.0'])
+
 
 ##file site.py
 SITE_PY = """
