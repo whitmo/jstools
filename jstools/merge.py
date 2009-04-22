@@ -4,11 +4,13 @@ merge.py
 Copyright (c) 2008 OpenGeo. All rights reserved.
 """
 
+from ConfigParser import ConfigParser
 from jstools import jsmin
 from jstools import tsort
-from ConfigParser import ConfigParser
-import pkg_resources
+from StringIO import StringIO
+import logging
 import os
+import pkg_resources
 import re
 
 DIST = pkg_resources.Requirement.parse("jstools")    
@@ -18,9 +20,11 @@ RE_INCLUDE = re.compile("@include (.*)\n")
 
 DEP_LINE = re.compile("^// @[include|requires]")
 
+special_section_prefixes = ["meta"]
+
 _marker = object()
 
-import logging
+
 logger = logging.getLogger('jstools.merge')
 
 class MissingImport(Exception):
@@ -55,6 +59,7 @@ class Merger(ConfigParser):
         return SourceFile(sourcedir, filepath, exclude)
     
     def merge(self, cfg, depmap=None):
+        #@@ this function needs to be decomposed into smaller testable bits
         sourcedir = cfg['root']
 
         # assemble all files in source directory according to config
@@ -80,10 +85,11 @@ class Merger(ConfigParser):
         dependencies = {}
         for filepath, info in files.items():
             dependencies[filepath] = info.requires
+
         
         # get tuple of files ordered by dependency
         self.printer("Sorting dependencies.")
-        order = tsort.sort(dependencies)
+        order = [x for x in tsort.sort(dependencies)]
 
         # move forced first and last files to the required position
         self.printer("Re-ordering files.")
@@ -91,14 +97,24 @@ class Merger(ConfigParser):
                      for item in order
                      if ((item not in cfg['first']) and
                          (item not in cfg['last']))] + cfg['last']
+
+        parts = ('first', 'include', 'last')
+        required_files = []
         
         ## Make sure all imports are in files dictionary
-        parts = ('first', 'include', 'last')
+        ## Create list of all required files for this part
         for part in parts:
-            for fp in cfg[part]:
+            fps = cfg[part]
+            required_files.extend(fps)
+            for fp in fps:
                 if not fp in cfg['exclude'] and not files.has_key(fp):
                     raise MissingImport("File from '%s' not found: %s" % (part, fp))
+                required_files.extend(dependencies[fp])
 
+        # filter out stray files that are not dependencies
+        rmap = dict(zip(required_files, (True for x in range(len(required_files)))))
+        order = [item for item in order if rmap.get(item)]
+        
         ## Header inserted at the start of each file in the output
         HEADER = "/* " + "=" * 70 + "\n    %s\n" + "   " + "=" * 70 + " */\n\n"
 
@@ -136,35 +152,82 @@ class Merger(ConfigParser):
         #@@ make optional?
         return "\n".join(x for x in merged.split('\n') if not DEP_LINE.match(x))
 
-    def run(self, uncompressed=False, single=None, strip_deps=True):
-        sections = self.sections()
+    def compress(self, merged, plugin="default"):
+        self.printer("Compressing with %s" %plugin)
+        dist = pkg_resources.get_distribution("jstools")
+        ep_map = pkg_resources.get_entry_map(dist, "jstools.compressor")
+        args = None
+        try:
+            plugin, args = plugin.split(":")
+        except ValueError:
+            pass
+        func = ep_map.get(plugin).load()
+        return func(merged, args)
+
+    def do_section(self, section, cfg, uncompressed=False, concatenate=False, strip_deps=True):
+        header = "Building %s" % section
+        self.printer("%s\n%s" % (header, "-" * len(header)))
+        merged = self.merge(cfg)
+        if not uncompressed:
+            merged = self.compress(merged)
+        elif strip_deps:
+            merged = self.strip_deps(merged)
+            
+        if cfg.has_key('output'):
+            outputfilename = cfg['output']
+        else:
+            outputfilename = os.path.join(self.output_dir, section)
+
+        if cfg['license']:
+            self.printer("Adding license file: %s" %cfg['license'])
+            merged = file(cfg['license']).read() + merged
+        return outputfilename, merged
+
+    def js_sections(self):
+        raw_sections = self.sections()
+        if self.has_section("meta"):
+            #@@ will need overhaul as soon as meta gets used for anything else
+            # order the stuff someone cares about
+            order = self.get("meta", "order").split()
+            sections = [raw_sections.pop(raw_sections.index(index)) for index in order]
+            # don't leave anything behind
+            sections.extend(raw_sections)
+            sections.remove('meta')
+            return sections
+        return raw_sections
+
+    def run(self, uncompressed=False, single=None, strip_deps=True, concatenate=None, compressor="default"):
+        sections = self.js_sections()
         if single is not None:
             assert single in sections, ValueError("%s not in %s" %(single, sections))
             sections = [single]
+            
+        #@@ refactor into a function for cat and one for multiples
         newfiles = []
+        cat = dict()
         for section in sections:
             cfg = self.make_cfg(section)
-            header = "Building %s" % section
-            self.printer("%s\n%s" % (header, "-" * len(header)))
-            merged = self.merge(cfg)
-            if not uncompressed:
-                self.printer("Compressing...")
-                merged = jsmin.jsmin(merged)
-            elif strip_deps:
-                merged = self.strip_deps(merged)
-                
-            if cfg.has_key('output'):
-                outputfilename = cfg['output']
+            if not concatenate:
+                outputfilename, merged = self.do_section(section, cfg, uncompressed, strip_deps)
+                self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
+                file(outputfilename, "w").write(merged)
             else:
-                outputfilename = os.path.join(self.output_dir, section)
+                outputfilename, merged = self.do_section(section, cfg, True, strip_deps)
+                cat[outputfilename] = merged
+            newfiles.append(outputfilename)
 
-            if cfg['license']:
-                self.printer("Adding license file: %s" %cfg['license'])
-                merged = file(cfg['license']).read() + merged
+        if concatenate:
+            outputfilename = os.path.join(self.output_dir, concatenate)
+            catted = StringIO()
+            for name in newfiles:
+                print >> catted, cat[name]
+            if not uncompressed:
+                self.compress(strip_deps, compressor)
 
             self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
-            file(outputfilename, "w").write(merged)
-            newfiles.append(outputfilename)
+            sfb = file(outputfilename, "w").write(catted.getvalue())
+            newfiles = [outputfilename]
+            
         return newfiles
 
 
