@@ -7,5 +7,5 @@ except ImportError:
         import sys
         sys.path.insert(0, "paver-minilib.zip")
 
-import paver.command
-paver.command.main()
+import paver.tasks
+paver.tasks.main()
