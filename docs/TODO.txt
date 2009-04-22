@@ -12,13 +12,20 @@ Priority
 
  * single file version on jsbuild + ziplib
 
+ * --force flag
+
  * sphinx documentation
 
  * single file build from html file
+
+ * optional printout of logging for verbose flag
+
  
 
 Blue Sky
 ========
+
+ * remote proxy server
 
  * server with file watching, automatic compression on serve
 
