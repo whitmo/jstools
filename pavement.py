@@ -39,7 +39,14 @@ setup(
     [console_scripts]
     jsbuild=jstools.build:build
     jsmin = jstools.jsmin:minify
+    [jstools.jsbuild_command]
+    default=jstools.build.default_merge
+    aggregate=jstools.build.aggregate
+    [jstools.compressor]
+    default=jstools.jsmin:compressor_plugin
+    yui=jstools.yuicompressor:compressor [yuicompressor]
     """,
+    extras_require=dict(yuicompressor="Paver"),
     test_suite='nose.collector',
     tests_require=['nose']
     )
