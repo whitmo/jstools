@@ -13,6 +13,7 @@ def setup_dir(cp, which=None, prefix=None):
     if which is None:
         for sect in cp.sections():
             handles.extend(setup_dir(cp, which=sect, prefix=prefix))
+
         return handles
 
     filenames = dict(item for item in cp.items(which) if item[0] in care)
