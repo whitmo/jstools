@@ -41,6 +41,9 @@ def jsmin(js):
         str = str[1:]
     return str
 
+def compressor_plugin(js, args=None):
+    return jsmin(js)
+
 def isAlphanum(c):
     """return true if the character is a letter, digit, underscore,
            dollar sign, or non-ASCII character.
