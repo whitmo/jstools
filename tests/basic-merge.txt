@@ -63,6 +63,7 @@ Now, compressed::
     >>> outfile = open(out[0])
     >>> print outfile.read()
     ### LICENSE ###
-    var filename='3rd/prototype.js';var filename='core/application.js';var filename='core/params.js';###LICENSE###var filename='3rd/prototype.js';var filename='core/application.js';var filename='core/params.js';var filename='core/api.js';var filename='core/api.js';
+    var filename='3rd/prototype.js';var filename='core/application.js';var filename='core/params.js';var filename='core/api.js';
+
 
 interesting... time to look into auto namespacing eh?
