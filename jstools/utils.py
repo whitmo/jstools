@@ -7,6 +7,7 @@ from ConfigParser import NoSectionError
 from UserDict import DictMixin
 import sys
 import logging
+import os
 try:
     from functools import wraps
 except ImportError:
@@ -14,21 +15,11 @@ except ImportError:
 
 logger = logging.getLogger('jstools')
 
-## def arg_parser(optparser):
-##     @decorator
-##     def _caller(func, args=None, options=None, parser=None):
-##         if args is None and options is None:
-##             argv = sys.argv
-##             options, args = optparser.parse_args(argv)
-##         return func(args, options, optparser)
-##     return _caller
-
-
 def arg_parser(optparser):
     "Allows for short circuiting of optparser"
-        
-    @wraps(func)
+
     def wrapper(func):
+        @wraps(func)
         def caller(args=None, options=None, parser=optparser):
             if args is None and options is None:
                 argv = sys.argv
@@ -67,3 +58,37 @@ class SectionMap(DictMixin):
 
     def keys(self):
         return dict(self.section_items).keys()
+
+# for compressor
+def retrieve_config(section=None, strict=False):
+    # first local
+    # then env
+    # then user
+    fn = ".jstools.cfg"
+    venv = os.environ.get("VIRTUAL_ENV")
+    user = os.path.join(os.path.expanduser("~/"), fn)
+    if venv is not None:
+        venv = os.path.join(venv, fn)
+    possible = fn, venv, user,
+    valid_path = None
+    cp = ConfigParser()
+    for path in (path for path in possible if path):
+        if os.path.exists(path):
+            valid_path = path
+            cp.read([valid_path])
+            if section not in cp.sections():
+                continue
+            break
+
+    if valid_path is None:
+        if strict:
+            raise ValueError("Configuration Not Found")
+        else:
+            return
+
+
+
+
+            
+
+    
