@@ -3,9 +3,8 @@ merge.py
 
 Copyright (c) 2008 OpenGeo. All rights reserved.
 """
-
 from ConfigParser import ConfigParser
-from jstools import jsmin
+from jstools import REQ, DIST
 from jstools import tsort
 from StringIO import StringIO
 import logging
@@ -13,22 +12,20 @@ import os
 import pkg_resources
 import re
 
-DIST = pkg_resources.Requirement.parse("jstools")    
-SUFFIX_JAVASCRIPT = ".js"
-RE_REQUIRE = re.compile("@requires (.*)\n")
-RE_INCLUDE = re.compile("@include (.*)\n")
 
 DEP_LINE = re.compile("^// @[include|requires]")
-
-special_section_prefixes = ["meta"]
+RE_INCLUDE = re.compile("@include (.*)\n")
+RE_REQUIRE = re.compile("@requires (.*)\n")
+SUFFIX_JAVASCRIPT = ".js"
 
 _marker = object()
-
-
 logger = logging.getLogger('jstools.merge')
+special_section_prefixes = ["meta"]
+
 
 class MissingImport(Exception):
     """Exception raised when a listed import is not found in the lib."""
+
 
 class Merger(ConfigParser):
     def __init__(self, output_dir, defaults=None, printer=logger.info):
@@ -48,8 +45,8 @@ class Merger(ConfigParser):
         return merger
 
     @classmethod
-    def from_resource(cls, resource_name, output_dir, dist=DIST, defaults=None, printer=logger.info):
-        conf = pkg_resources.resource_stream(dist, resource_name)
+    def from_resource(cls, resource_name, output_dir, requirement=REQ, defaults=None, printer=logger.info):
+        conf = pkg_resources.resource_stream(requirement, resource_name)
         merger = cls(output_dir, defaults=defaults, printer=printer)
         merger.readfp(conf)
         return merger
@@ -154,8 +151,7 @@ class Merger(ConfigParser):
 
     def compress(self, merged, plugin="default"):
         self.printer("Compressing with %s" %plugin)
-        dist = pkg_resources.get_distribution("jstools")
-        ep_map = pkg_resources.get_entry_map(dist, "jstools.compressor")
+        ep_map = pkg_resources.get_entry_map(DIST, "jstools.compressor")
         args = None
         try:
             plugin, args = plugin.split(":")
@@ -271,6 +267,7 @@ class SourceFile(object):
                              if x not in self.exclude]
                                    
         return self._include
+
 
 def jsfiles_for_dir(sourcedir, jssuffix=SUFFIX_JAVASCRIPT):
     for root, dirs, entries in os.walk(sourcedir):

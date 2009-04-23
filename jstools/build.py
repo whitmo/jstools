@@ -4,6 +4,7 @@ build.py
 Copyright (c) 2008 OpenGeo. All rights reserved.
 """
 import sys
+from jstools import DIST
 from jstools.merge import Merger
 from jstools.utils import arg_parser, printer as printer_factory
 import pkg_resources
@@ -67,8 +68,7 @@ def default_merge(args=None, options=None, parser=None):
 
 
 def build():
-    dist = pkg_resources.get_distribution("jstools")
-    ep_map = pkg_resources.get_entry_map(dist, "jstools.jsbuild_command")
+    ep_map = pkg_resources.get_entry_map(DIST, "jstools.jsbuild_command")
     command = ep_map.get(sys.argv[1], "default")
     command()
 
