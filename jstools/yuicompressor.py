@@ -1,3 +1,3 @@
 
-def compress(input, config=None):
+def compress(input, args):
     pass

@@ -1,8 +1,10 @@
-import utils as testutils
 from jstools import deps, merge
-import pkg_resources
 import os
+import pkg_resources
+import re
+import utils as testutils
 
+R_FILES = re.compile(r"var filename='(.*)'")
 libdir, tempdir = None, None
 
 license = "### LICENSE ###\n"
@@ -52,8 +54,6 @@ def test_merger_by_file():
     assert merge.Merger.from_fn(filename, "/tmp")
     assert merge.Merger.from_fn([filename], "/tmp")
 
-import re
-R_FILES = re.compile(r"var filename='(.*)'")
 
 def test_concatenate():
     """
@@ -71,3 +71,8 @@ def test_concatenate():
     sfb = open(outfiles[0])
     files_found = R_FILES.findall(sfb.read())
     assert files_found == ['core1/lib1.js', 'core2/lib2.js', 'core3/lib3.js']
+
+
+
+def test_compression():
+    pass
