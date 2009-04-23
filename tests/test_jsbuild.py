@@ -1,4 +1,4 @@
-from jstools import deps, merge
+from jstools import deps, merge, DIST, REQ
 import os
 import pkg_resources
 import re
@@ -72,7 +72,25 @@ def test_concatenate():
     files_found = R_FILES.findall(sfb.read())
     assert files_found == ['core1/lib1.js', 'core2/lib2.js', 'core3/lib3.js']
 
+jsmin_result = """### LICENSE ###
+(function(){window.NameSpace={};var long_internal_var=[1,2,3,4];var long_internal_var2=[long_internal_var,long_internal_var];window.NameSpace.extra_var=long_internal_var2;})();Namespace.Node={class_var:5,api_method:function(some_argument){var long_name_var=some_argument+1;return long_name_var;},api_method2:function(some_argument){return this.api_method(some_argument)+this.class_var;}};
+"""
 
+def compression_setup():
+    merger = file_tree(conf='compress')
+    js = pkg_resources.resource_string(REQ, "data/compress.js")
+    open(os.path.join(testutils.libdir, "compress.js"), "w+").write(js)
+    return merger
+    
+def test_default_compression():
+    # jsmin default
+    merger = compression_setup()
+    outfiles = merger.run()
+    sfb = open(outfiles[0])
+    assert sfb.read().strip() == jsmin_result.strip()
 
-def test_compression():
-    pass
+def test_yui_compression():
+    merger = compression_setup()
+    outfiles = merger.run()
+    sfb = open(outfiles[0])
+    assert sfb.read().strip() == jsmin_result.strip()
