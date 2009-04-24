@@ -99,18 +99,10 @@ class Merger(ConfigParser):
         required_files = []
         
         ## Make sure all imports are in files dictionary
-        ## Create list of all required files for this part
         for part in parts:
-            fps = cfg[part]
-            required_files.extend(fps)
-            for fp in fps:
+            for fp in cfg[part]:
                 if not fp in cfg['exclude'] and not files.has_key(fp):
                     raise MissingImport("File from '%s' not found: %s" % (part, fp))
-                required_files.extend(dependencies[fp])
-
-        # filter out stray files that are not dependencies
-        rmap = dict(zip(required_files, (True for x in range(len(required_files)))))
-        order = [item for item in order if rmap.get(item)]
         
         ## Header inserted at the start of each file in the output
         HEADER = "/* " + "=" * 70 + "\n    %s\n" + "   " + "=" * 70 + " */\n\n"
