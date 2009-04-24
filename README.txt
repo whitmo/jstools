@@ -222,8 +222,14 @@ Run Tests
  in the src dir in an environment w/ yuicomp installed::
   
   $ easy_install nose
-  $ cd test; nosetests
+  $ paver get_yuicomp
+  $ cd test 
+  $ nosetests {options}
 
+ or most simply::
+
+  $ python setup.py test
+ 
 
 Credits
 =======
