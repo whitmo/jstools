@@ -14,7 +14,7 @@ from setuptools import find_packages
 from paver.setuputils import setup
 from ConfigParser import ConfigParser
 
-version = '0.1'
+version = '0.1.1'
 
 try:
     description = ''.join([x for x in open('README.txt')])
