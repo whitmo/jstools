@@ -1,0 +1,8 @@
+2009-04-22  whit  <whit@JATO3.local>
+
+	* Added "concatenate" flag for automatically creating a single
+	  file out of a config without further configuration changes.
+
+	* Removed external dependencies on decorator and plone.memoize
+
+
