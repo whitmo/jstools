@@ -41,7 +41,7 @@ def jsmin(js):
         str = str[1:]
     return str
 
-def compressor_plugin(js, args=None):
+def compressor_plugin(js, args=None, cfg=None):
     return jsmin(js)
 
 def isAlphanum(c):
