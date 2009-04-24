@@ -1,4 +1,8 @@
-2009-04-22  whit  <whit@JATO3.local>
+2009-04-23  whit  <whit@opengeo.org>
+
+	* add yuicompressor support
+
+2009-04-22  whit  <whit@opengeo.org>
 
 	* Added "concatenate" flag for automatically creating a single
 	  file out of a config without further configuration changes.
