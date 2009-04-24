@@ -1,13 +1,16 @@
 from jstools import deps, merge, DIST, REQ
+from ConfigParser import ConfigParser
 import os
 import pkg_resources
 import re
 import utils as testutils
+from jstools.yuicompressor import find_paths
+import os
 
-R_FILES = re.compile(r"var filename='(.*)'")
+R_FILES = re.compile(r"var filename='(.*?/.*?)';")
 libdir, tempdir = None, None
 
-license = "### LICENSE ###\n"
+license = "/* ### LICENSE ### */"
 
 def set_faux_files(cfg, libdir, *filenames):
     for fn in filenames:
@@ -62,7 +65,8 @@ def test_concatenate():
     merger = file_tree(depcfg="data/concat-dep.cfg", conf="meta-concatenate", output_files=("Output1.js", "Output2.js", "Output3.js"))
     outfiles = merger.run(concatenate="sfb.js")
     sfb = open(outfiles[0])
-    files_found = R_FILES.findall(sfb.read())
+    out = sfb.read()
+    files_found = R_FILES.findall(out)
     assert files_found == ['core2/lib2.js', 'core3/lib3.js', 'core1/lib1.js']
 
     merger.add_section("meta")
@@ -72,7 +76,7 @@ def test_concatenate():
     files_found = R_FILES.findall(sfb.read())
     assert files_found == ['core1/lib1.js', 'core2/lib2.js', 'core3/lib3.js']
 
-jsmin_result = """### LICENSE ###
+jsmin_result = """
 (function(){window.NameSpace={};var long_internal_var=[1,2,3,4];var long_internal_var2=[long_internal_var,long_internal_var];window.NameSpace.extra_var=long_internal_var2;})();Namespace.Node={class_var:5,api_method:function(some_argument){var long_name_var=some_argument+1;return long_name_var;},api_method2:function(some_argument){return this.api_method(some_argument)+this.class_var;}};
 """
 
@@ -89,8 +93,16 @@ def test_default_compression():
     sfb = open(outfiles[0])
     assert sfb.read().strip() == jsmin_result.strip()
 
+yui_result_noargs = """
+(function(){window.NameSpace={};var b=[1,2,3,4];var a=[b,b];window.NameSpace.extra_var=a})();Namespace.Node={class_var:5,api_method:function(b){var a=b+1;return a},api_method2:function(a){return this.api_method(a)+this.class_var}};"""
+
 def test_yui_compression():
     merger = compression_setup()
-    outfiles = merger.run()
+    for path in find_paths("yui", merger):
+        path = path.split(":")
+        if not os.path.exists(path[0]):
+            raise ValueError("You must run 'paver get_yuicomp' to setup for this test")
+    # yui no args: requires a default instance of yui available
+    outfiles = merger.run(compressor="yui")
     sfb = open(outfiles[0])
-    assert sfb.read().strip() == jsmin_result.strip()
+    assert sfb.read().strip() == yui_result_noargs.strip()

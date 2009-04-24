@@ -7,7 +7,7 @@ demonstrate how to programmatically run jsbuild.
 
     >>> from jstools import deps
     >>> import os
-    >>> license = "### LICENSE ###"
+    >>> license = "/* ### LICENSE ### */"
 
 Set up a filetree with dependencies::
 
@@ -37,7 +37,7 @@ Now let's test the output::
 
     >>> outfile = open(out[0])
     >>> print outfile.read()
-    ### LICENSE ###
+    /* ### LICENSE ### */
     /* ======================================================================
         3rd/prototype.js
        ====================================================================== */...
@@ -62,8 +62,8 @@ Now, compressed::
     >>> out = merger.run(single='Output.js')
     >>> outfile = open(out[0])
     >>> print outfile.read()
-    ### LICENSE ###
     var filename='3rd/prototype.js';var filename='core/application.js';var filename='core/params.js';var filename='core/api.js';
 
+Currently, all license information is removed.
 
-interesting... time to look into auto namespacing eh?
+TODO: namespacing
