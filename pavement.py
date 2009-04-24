@@ -14,7 +14,7 @@ from setuptools import find_packages
 from paver.setuputils import setup
 from ConfigParser import ConfigParser
 
-version = '0.1.1'
+version = '0.1.1a'
 
 try:
     description = ''.join([x for x in open('README.txt')])
@@ -26,7 +26,11 @@ setup(
     version=version,
     description="assorted python tools for building (packing, aggregating) javascript libraries",
     long_description=description,
-    classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+    classifiers=["Development Status :: 3 - Alpha",
+                 "Programming Language :: JavaScript",
+                 "Topic :: Software Development :: Build Tools",
+                 "License :: OSI Approved :: BSD License"
+                 ], 
     keywords='javascript',
     author='assorted',
     author_email='info@opengeo.org',
@@ -34,7 +38,7 @@ setup(
     license='various/BSDish',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,
-    zip_safe=False,
+    zip_safe=True,
     entry_points="""
     [zc.buildout]
     default=jstools.bo:BuildJS
