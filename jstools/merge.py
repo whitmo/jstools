@@ -149,26 +149,17 @@ class Merger(ConfigParser):
         #@@ make optional?
         return "\n".join(x for x in merged.split('\n') if not DEP_LINE.match(x))
 
-    def compress(self, merged, plugin="default"):
+    def compress(self, merged, plugin="default", cfg=None):
         self.printer("Compressing with %s" %plugin)
         ep_map = pkg_resources.get_entry_map(DIST, "jstools.compressor")
         args = None
-        try:
-            plugin, args = plugin.split(":")
-        except ValueError:
-            pass
         func = ep_map.get(plugin).load()
-        return func(merged, args)
+        return func(merged, plugin, cfg)
 
-    def do_section(self, section, cfg, uncompressed=False, concatenate=False, strip_deps=True):
+    def do_section(self, section, cfg):
         header = "Building %s" % section
         self.printer("%s\n%s" % (header, "-" * len(header)))
         merged = self.merge(cfg)
-        if not uncompressed:
-            merged = self.compress(merged)
-        elif strip_deps:
-            merged = self.strip_deps(merged)
-            
         if cfg.has_key('output'):
             outputfilename = cfg['output']
         else:
@@ -176,7 +167,7 @@ class Merger(ConfigParser):
 
         if cfg['license']:
             self.printer("Adding license file: %s" %cfg['license'])
-            merged = file(cfg['license']).read() + merged
+            merged = "\n".join((file(cfg['license']).read(), merged))
         return outputfilename, merged
 
     def js_sections(self):
@@ -204,11 +195,16 @@ class Merger(ConfigParser):
         for section in sections:
             cfg = self.make_cfg(section)
             if not concatenate:
-                outputfilename, merged = self.do_section(section, cfg, uncompressed, strip_deps)
+                outputfilename, merged = self.do_section(section, cfg)
+                if not uncompressed:
+                    self.printer("Compressing %s" %outputfilename)
+                    merged = self.compress(merged, compressor, self)
+                elif strip_deps:
+                    merged = self.strip_deps(merged)
                 self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
                 file(outputfilename, "w").write(merged)
             else:
-                outputfilename, merged = self.do_section(section, cfg, True, strip_deps)
+                outputfilename, merged = self.do_section(section, cfg)
                 cat[outputfilename] = merged
             newfiles.append(outputfilename)
 
@@ -217,11 +213,16 @@ class Merger(ConfigParser):
             catted = StringIO()
             for name in newfiles:
                 print >> catted, cat[name]
+
+            merged = catted.getvalue()
             if not uncompressed:
-                self.compress(strip_deps, compressor)
+                self.printer("Compressing %s" %outputfilename)
+                merged = self.compress(merged, compressor, self)
+            elif strip_deps:
+                merged = self.strip_deps(merged)
 
             self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
-            sfb = file(outputfilename, "w").write(catted.getvalue())
+            sfb = file(outputfilename, "w").write(merged)
             newfiles = [outputfilename]
             
         return newfiles
