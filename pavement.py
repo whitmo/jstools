@@ -10,6 +10,7 @@ from paver.easy import cmdopts #,consume_args
 from paver.easy import path, sh, info
 from paver.easy import call_task #debug,
 from paver.tasks import help, needs
+from paver.runtime import call_task
 from setuptools import find_packages
 from paver.setuputils import setup
 from ConfigParser import ConfigParser
@@ -100,6 +101,20 @@ def set_yui_version(conf, version, yui_dir):
 @needs(['get_yuicomp','setuputils.command.test'])
 def test():
     info("Tests are done")
+
+# paver egg_info -RDb "" sdist bdist_egg register upload
+@task
+@needs(['setuputils.command.egg_info'])
+def pypi_release(options):
+    tasks = ('setuputils.command.sdist',
+             'setuputils.command.bdist_egg',
+             'setuputils.command.register',
+             'setuputils.command.upload')
+
+    for task in tasks:
+        call_task(task)
+    
+    info("jstools released")
 
 @task
 @needs(['create_jstools_userconfig'])
