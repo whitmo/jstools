@@ -66,9 +66,9 @@ options(virtualenv=Bunch(script_name="install_jstools",
         )
 
 @task
-@needs(['download_yuicompressor'])
+@needs(['get_yuicomp', 'setuptools.command.develop'])
 def install_jstools():
-    info("Not implemented")
+    info("All Done")
 
 DEFAULT_CFG = ".jstools.cfg"
 
