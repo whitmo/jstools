@@ -16,44 +16,50 @@ Requirements
 
 Should be python 2.4 friendly, tested most on python 2.5
 
-Script Install
---------------
+Easy Install
+------------
 
-$ cd /your/javascript/distribution
-$ wget http://github.com/whitmo/jstools/raw/master/install_jstools
-$ wget http://github.com/whitmo/jstools/raw/master/pavement.py
-$ python install_jstools.py
+ $ easy_install jstools
 
-This will safely turn your distribution folder into a python
-environment [#]_ with the jstools scripts installed in
 '/your/javascript/distribution/bin'.
 
-$ bin/jsbuild
-$ bin/jsmin
+This will ut the following scripts in '/your/python/distribution/bin'::
+
+ $ bin/jsbuild
+ $ bin/jsmin
+
+Depending on your system, this action may require sudo.
 
 
-Other Install Options
----------------------
+Environment Install
+-------------------
+
+'jstools' includes a script to create a contained python
+environment. This script also automatically downloads the yui
+compressor and puts it in a place jstools can find it.
+
+This script will turn a folder of your choice into a python
+environment [#]_ with the jstools scripts installed in a directory
+called 'bin'::
+
+  $ easy_install -b ./ -e jstools
+  $ python jstools/install_jstools ./jsdir
+
+This makes 'jsdir' jstools enabled with it's own 'bin'. source the
+script 'bin/activate', and now jsbuild and jsmin are on your path::
+
+  $ cd jsdir
+  $ . bin/activate
+
+
+Other Distribution Options
+--------------------------
 
 You can download jstools in whatever flavor your prefer::
 
  $ wget http://github.com/whitmo/jstools/tarball/master
- $ svn co http://svn.opengeo.org/jstools/trunk/
+ $ svn co http://svn.opengeo.org/jstools/trunk/ # not currently working
  $ git clone git://github.com/whitmo/jstools.git
-
-
-Global Install
-``````````````
-
-Depending on your python install (and setuptools plugins), you could
-use any of the urls above and easy_install::
-
-  $ sudo easy_install jstool-url-above
-
-If you've downloaded the code, the following command from inside the
-distribution will take care of global installation::
-
-  $ sudo python setup.py install
 
 
 Scripts
