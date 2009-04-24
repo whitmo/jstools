@@ -78,21 +78,44 @@ dependencies declared inside the files themselves.
 Usage
 ~~~~~
 
+
+
 jsbuild <config_file> [options]
+
+
 
 Options
 +++++++
 
+Usage: jsbuild [options] filename1.cfg [filename2.cfg...]
+
 Options:
-  -h [--help]            show this help message and exit
-  -u [--uncompress]      Don't compresses aggregated javascript
-  -v [--verbose]         print more info
-  -o [--output=] OUTPUT_DIR
-                         Output directory
-  -r [--resource=] RESOURCE_DIR
-                         resource base directory (used for interpolation)
-  -s [--single=] SECTION
-                         Only create file for this section (see below)
+  -h, --help
+      show this help message and exit
+
+  -u, --uncompress
+      Don't compresses aggregated javascript. jsbuild defaults to
+      applying 'jsmin' to all output.
+
+  -v, --verbose
+      print more info
+
+  -o OUTPUT_DIR, --output=OUTPUT_DIR
+     Output directory for files jsbuild creates
+
+  -r RESOURCE_DIR, --resource=RESOURCE_DIR
+     base directory for resource files (for interpolation)
+
+  -j SINGLE_FILE, --just=SINGLE_FILE
+     *New in 1.1*: Only create file for this section
+
+  -s CONCAT, --single-file-build=CONCAT
+     *New in 1.1*. Create a single file of all of possible output
+
+  -c COMPRESSOR, --compressor=COMPRESSOR
+     *New in 1.1*. Specify compressor plugin to use in form
+     {specifier}:{'arguments_string'}.
+
 
 Configuration Format
 ~~~~~~~~~~~~~~~~~~~~
@@ -190,17 +213,16 @@ Mixed. same as OpenLayers unless otherwhise noted
 Buildout Support
 ================
 
-see jsbuild/bo.txt
+see jstools/bo.txt
 
 
 Run Tests
 =========
 
-if you are using the included env.py::
-
- python setup.py nosetests
-
-otherwhise, you will need to install 'nose' and run the same command.
+ in the src dir in an environment w/ yuicomp installed::
+  
+  $ easy_install nose
+  $ cd test; nosetests
 
 
 Credits
