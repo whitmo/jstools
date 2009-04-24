@@ -4,6 +4,7 @@ utils.py
 Copyright (c) 2008 OpenGeo. All rights reserved.
 """
 from ConfigParser import NoSectionError
+from ConfigParser import ConfigParser
 from UserDict import DictMixin
 import sys
 import logging
@@ -59,32 +60,40 @@ class SectionMap(DictMixin):
     def keys(self):
         return dict(self.section_items).keys()
 
+def load_return(section=None):
+    cp = ConfigParser()
+    def load_file_or_section(path):
+        cp.read(path)
+        if section is not None:
+            return SectionMap(cp, section)
+        return cp
+    return load_file_or_section
+
 # for compressor
 def retrieve_config(section=None, strict=False):
-    # first local
-    # then env
-    # then user
+    # walk up from current directory
+    # check virtualenv
+    # check user directory
+    # return either a ConfigParser or a SectionMap
+    from paver.easy import path
     fn = ".jstools.cfg"
-    venv = os.environ.get("VIRTUAL_ENV")
-    user = os.path.join(os.path.expanduser("~/"), fn)
-    if venv is not None:
-        venv = os.path.join(venv, fn)
-    possible = fn, venv, user,
-    valid_path = None
-    cp = ConfigParser()
-    for path in (path for path in possible if path):
-        if os.path.exists(path):
-            valid_path = path
-            cp.read([valid_path])
-            if section not in cp.sections():
-                continue
-            break
+    conf = None
+    directory = path(os.path.abspath(os.curdir))
+    section_or_parser = load_return(section)
+    while conf is None and directory:
+        if os.path.exists(directory / fn):
+            return section_or_parser(directory / fn)
+        directory = directory.parent
 
-    if valid_path is None:
-        if strict:
-            raise ValueError("Configuration Not Found")
-        else:
-            return
+    venv = os.environ.get("VIRTUAL_ENV")
+    if venv and (path(venv) / fn).exists():
+        return section_or_parser(path(venv) / fn)
+    
+    user = path(os.path.expanduser("~/"))
+    if (user / fn).exists():
+        return section_or_parser(user / fn)
+
+    
 
 
 
