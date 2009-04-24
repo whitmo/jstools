@@ -92,11 +92,15 @@ def set_yui_version(conf, version, yui_dir):
     parser.set(section, "jarpath", (yui_dir / "build").glob("*.jar")[0])
     parser.write(conf.open("w+"))
 
+@task
+@needs(['get_yuicomp','setuputils.command.test'])
+def test():
+    info("Tests are done")
 
 @task
 @needs(['create_jstools_userconfig'])
 @cmdopts([("compressor_version=", "v", "compressor version to download"),
-          ("set_as_default", "", "set this version as default for local configuration"),
+          ("set_as_default", "y", "set this version as default for local configuration"),
           ("overwrite", 'o', "overwrite old version")])
 def get_yuicomp():
     current_dir = path.getcwd()
@@ -122,7 +126,7 @@ def get_yuicomp():
 
     info("yui compressor already downloaded")
     
-    if options.set_as_default:
+    if getattr(options, 'set_as_default', None):
         set_yui_version(jst_conf, options.compressor_version, yui_dir)
 
 
