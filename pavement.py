@@ -44,7 +44,7 @@ setup(
     aggregate=jstools.build.aggregate
     [jstools.compressor]
     default=jstools.jsmin:compressor_plugin
-    yui=jstools.yuicompressor:compressor [yuicompressor]
+    yui=jstools.yuicompressor:compress [yuicompressor]
     """,
     extras_require=dict(yuicompressor="Paver"),
     test_suite='nose.collector',
@@ -82,8 +82,12 @@ def set_yui_version(conf, version, yui_dir):
     parser = ConfigParser()
     parser.read(conf)
     section = "yui_compressor"
-    parser.add_section(section)
-    parser.set(section, "lib", str(yui_dir / "lib"))
+    if not parser.has_section(section):
+        parser.add_section(section)
+    jars = (yui_dir / "lib").glob("*.jar")
+    cp = ":".join(jars)
+    parser.set(section, "classpath", cp)
+    parser.set(section, "jarpath", (yui_dir / "build").glob("*.jar")[0])
     parser.write(conf.open("w+"))
 
 
@@ -100,7 +104,7 @@ def get_yuicomp():
     yui_dir = lib_dir / ("yuicompressor-%s" % options.compressor_version)
     jst_conf = current_dir / DEFAULT_CFG
 
-    if options.overwrite and yui_dir.exists():
+    if getattr(options, "overwrite", False) and yui_dir.exists():
         sh("rm -rf %s" %yui_dir)
     
     if not yui_dir.exists():
