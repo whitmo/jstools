@@ -70,7 +70,7 @@ def default_merge(args=None, options=None, parser=None):
 def build():
     ep_map = pkg_resources.get_entry_map(DIST, "jstools.jsbuild_command")
     plugin = "default"
-    if len(sys.argv)>1:
+    if len(sys.argv)>1 and not sys.argv[1].startswith("-"):
         plugin = sys.argv[1]
     command = ep_map.get(plugin, "default").load()
     command()
