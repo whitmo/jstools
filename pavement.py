@@ -16,7 +16,10 @@ from ConfigParser import ConfigParser
 
 version = '0.1'
 
-description = ''.join([x for x in open('README.txt')])
+try:
+    description = ''.join([x for x in open('README.txt')])
+except IOError:
+    description = ""
 
 setup(
     name='JSTools',

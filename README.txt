@@ -11,13 +11,18 @@ Until jstools is released into pypi, we suggest checking out jstools
 and installing using either 'python setup.py install' or 'python
 setup.py develop' from within your checkout.
 
+Requirements
+------------
+
+Should be python 2.4 friendly, tested most on python 2.5
 
 Script Install
 --------------
 
 $ cd /your/javascript/distribution
-$ wget http://github.com/whitmo/jstools/raw/master/install.py
-$ python install.py
+$ wget http://github.com/whitmo/jstools/raw/master/install_jstools
+$ wget http://github.com/whitmo/jstools/raw/master/pavement.py
+$ python install_jstools.py
 
 This will safely turn your distribution folder into a python
 environment [#]_ with the jstools scripts installed in
