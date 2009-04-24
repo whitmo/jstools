@@ -14,7 +14,7 @@ from setuptools import find_packages
 from paver.setuputils import setup
 from ConfigParser import ConfigParser
 
-version = '0.1'
+version = '0.1.1'
 
 try:
     description = ''.join([x for x in open('README.txt')])
@@ -43,8 +43,7 @@ setup(
     jsbuild=jstools.build:build
     jsmin = jstools.jsmin:minify
     [jstools.jsbuild_command]
-    default=jstools.build.default_merge
-    aggregate=jstools.build.aggregate
+    default=jstools.build:default_merge
     [jstools.compressor]
     default=jstools.jsmin:compressor_plugin
     yui=jstools.yuicompressor:compress [yuicompressor]
@@ -97,7 +96,7 @@ def set_yui_version(conf, version, yui_dir):
 @task
 @needs(['create_jstools_userconfig'])
 @cmdopts([("compressor_version=", "v", "compressor version to download"),
-          ("set_as_default", "d", "set this version as default for local configuration"),
+          ("set_as_default", "", "set this version as default for local configuration"),
           ("overwrite", 'o', "overwrite old version")])
 def get_yuicomp():
     current_dir = path.getcwd()
