@@ -10,11 +10,13 @@ from paver.easy import cmdopts #,consume_args
 from paver.easy import path, sh, info
 from paver.easy import call_task #debug,
 from paver.tasks import help, needs
-from paver.runtime import call_task
+from paver.easy import call_task
 from setuptools import find_packages
 from paver.setuputils import setup
 from ConfigParser import ConfigParser
+from paver import setuputils
 
+setuputils.install_distutils_tasks()
 version = '0.1.1a'
 
 try:
@@ -106,13 +108,19 @@ def test():
 @task
 @needs(['setuputils.command.egg_info'])
 def pypi_release(options):
-    tasks = ('setuputils.command.sdist',
+    """
+    Point release of jstools into pypi
+    """
+    tasks = ('distutils.command.sdist',
              'setuputils.command.bdist_egg',
-             'setuputils.command.register',
-             'setuputils.command.upload')
+             'distutils.command.register',
+             'distutils.command.upload')
 
     for task in tasks:
-        call_task(task)
+        try:
+            call_task(task)
+        except :
+            import pdb, sys; pdb.post_mortem(sys.exc_info()[2])
     
     info("jstools released")
 
