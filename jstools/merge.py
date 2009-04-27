@@ -57,16 +57,18 @@ class Merger(ConfigParser):
     
     def merge(self, cfg, depmap=None):
         #@@ this function needs to be decomposed into smaller testable bits
-        sourcedir = cfg['root']
+        sourcedirs = cfg['root']
 
         # assemble all files in source directory according to config
         include = cfg.get('include', False)
         exclude = cfg['exclude']
         all_inc = (cfg['first'] + cfg['include'] + cfg['last'])
-        files = dict((filepath, self.make_sourcefile(sourcedir, filepath, exclude)) \
-                    for filepath in jsfiles_for_dir(sourcedir) \
-                    if (include and filepath in all_inc or \
-                        (not include and filepath not in exclude)))
+        files = {}
+        for sourcedir in sourcedirs:
+            files.update(dict((filepath, self.make_sourcefile(sourcedir, filepath, exclude)) \
+                        for filepath in jsfiles_for_dir(sourcedir) \
+                        if (include and filepath in all_inc or \
+                            (not include and filepath not in exclude))))
 
         # ensure all @include and @requires references are in
         complete = False
@@ -76,7 +78,12 @@ class Merger(ConfigParser):
                 for path in info.include + info.requires:
                     if path not in cfg['exclude'] and not files.has_key(path):
                         complete = False
-                        files[path] = self.make_sourcefile(sourcedir, path, exclude)
+                        for sourcedir in sourcedirs:
+                            if os.path.exists(os.path.join(sourcedir, path)):
+                                files[path] = self.make_sourcefile(sourcedir, path, exclude)
+                                break
+                        else:
+                            raise MissingImport("File '%s' not found in root directories" % path)
         
         # create list of dependencies
         dependencies = {}
@@ -124,8 +131,8 @@ class Merger(ConfigParser):
             merged = '(function(){%s})();' % merged
         return merged
 
-    key_list = 'include', 'exclude', 'last', 'first', 
-    keys = 'license', 'root', 'closure',
+    key_list = 'root', 'include', 'exclude', 'last', 'first', 
+    keys = 'license', 'closure',
 
     def make_cfg(self, section):
         cfg = dict(self.items(section))

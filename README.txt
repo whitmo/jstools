@@ -126,8 +126,12 @@ multiple sections).
 A section is formatted in the following fashion::
 
 [Output.js]
-root=path/to/where/files/are
+root=
+      path/to/where/files/are
+      other/path/to/where/files/are
+
 license=path/to/license/for/these/libs
+
 first=        
       3rd/prototype.js
       core/application.js
@@ -153,6 +157,10 @@ the config file.  '%(resource-dir)s' may be subsituted for the value
 of the -r flag.
 
 Lines commented using '#' will be ignored. 
+
+If an `include` section is defined, jsbuild will only build listed
+files from this section and theirs dependencies, else all files from
+`root` section will be built.
 
 
 Dependency Syntax
