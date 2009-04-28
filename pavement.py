@@ -61,7 +61,7 @@ setup(
     )
 
 options(virtualenv=Bunch(script_name="install_jstools",
-                         packages_to_install=[],
+                         packages_to_install=['nose'],
                          paver_command_line="install_jstools"
                          ),
         yui_compressor=Bunch(compressor_version = "2.4.2",
