@@ -104,25 +104,25 @@ def set_yui_version(conf, version, yui_dir):
 def test():
     info("Tests are done")
 
-# paver egg_info -RDb "" sdist bdist_egg register upload
-@task
-@needs(['setuputils.command.egg_info'])
-def pypi_release(options):
-    """
-    Point release of jstools into pypi
-    """
-    tasks = ('distutils.command.sdist',
-             'setuputils.command.bdist_egg',
-             'distutils.command.register',
-             'distutils.command.upload')
+## # paver egg_info -RDb "" sdist bdist_egg register upload
+## @task
+## @needs(['setuputils.command.egg_info'])
+## def pypi_release(options):
+##     """
+##     Point release of jstools into pypi
+##     """
+##     tasks = ('distutils.command.sdist',
+##              'setuputils.command.bdist_egg',
+##              'distutils.command.register',
+##              'distutils.command.upload')
 
-    for task in tasks:
-        try:
-            call_task(task)
-        except :
-            import pdb, sys; pdb.post_mortem(sys.exc_info()[2])
+##     for task in tasks:
+##         try:
+##             call_task(task)
+##         except :
+##             import pdb, sys; pdb.post_mortem(sys.exc_info()[2])
     
-    info("jstools released")
+##     info("jstools released")
 
 @task
 @needs(['create_jstools_userconfig'])
