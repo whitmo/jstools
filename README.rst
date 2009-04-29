@@ -245,14 +245,15 @@ Whit Morriss (whit at opengeo.org) repackaged these scripts as jstools
 and Tim Schaub (tschaub at opengeo.org) did extensive reworking of tsort.
 
 
-[1] See 'virtualenv <http://pypi.python.org/pypi/virtualenv>'_ for more
-information about the python environment.  You may activate and
-deactivate this environment to add the installed scripts to your path,
-localize python package installs and other niceties ala::
+.. [#] See 'virtualenv <http://pypi.python.org/pypi/virtualenv>'_ for
+       more information about the python environment.  You may activate
+       and deactivate this environment to add the installed scripts to
+       your path, localize python package installs and other niceties
+       ala::
 
- $ source bin/activate
- $ deactivate
+        $ source bin/activate
+        $ deactivate
 
-[2] `OpenLayers Homepage <http://www.openlayers.org>`_ and `the
-original scripts <http://svn.openlayers.org/trunk/openlayers/tools/>`_
+.. [#] `OpenLayers Homepage <http://www.openlayers.org>`_ and `the
+       original scripts <http://svn.openlayers.org/trunk/openlayers/tools/>`_
 
