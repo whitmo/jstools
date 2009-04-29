@@ -17,8 +17,6 @@ Consider some code with well formatted comment blocks::
     ...  *    below the level of the first line.
     ...  */
     ...
-    ... /** non jst-specific comment **/
-    ... 
     ... /** jst: bar[]
     ...  *  Create a list with brackets following the label.
     ...  */
@@ -117,3 +115,51 @@ We expect three comments.  The one liner is like a single line from a (defines) 
     >>> obj.data['one_liner']
     'the one liner value'
 
+
+Testing inheritance
+-------------------
+
+Create some dummy source file objects and check their data dictionaries::
+
+    >>> from pprint import pprint
+    >>> parent = jst.SourceFile("""
+    ... 
+    ...     /** jst: prop1 = parent prop1 value */
+    ... 
+    ...     /** jst: prop2 = parent prop2 value */
+    ... 
+    ...     /** jst: d[key1] = parent d['key1'] value */
+    ...     
+    ...     /** jst: d[key2] = parent d['key2'] value */
+    ... 
+    ... """)    
+    >>> child = jst.SourceFile("""
+    ... 
+    ...     /** jst: prop2 = child prop2 value */
+    ... 
+    ...     /** jst: d[key2] = child d['key2'] value */
+    ... 
+    ...     /** jst: d[key3] = child d['key3'] value */
+    ... 
+    ... """)
+    >>> pprint(parent.data)
+    {'d': {'key1': "parent d['key1'] value", 'key2': "parent d['key2'] value"},
+     'prop1': 'parent prop1 value',
+     'prop2': 'parent prop2 value'}
+    >>> pprint(child.data)
+    {'d': {'key2': "child d['key2'] value", 'key3': "child d['key3'] value"},
+     'prop2': 'child prop2 value'}
+    
+Now, extend the child with data from the parent::
+
+    >>> child.inherit([parent])
+    >>> pprint(child.data)
+    {'_parents': [{'d': {'key1': "parent d['key1'] value",
+                         'key2': "parent d['key2'] value"},
+                   'prop1': 'parent prop1 value',
+                   'prop2': 'parent prop2 value'}],
+     'd': {'key1': "parent d['key1'] value",
+           'key2': "child d['key2'] value",
+           'key3': "child d['key3'] value"},
+     'prop1': 'parent prop1 value',
+     'prop2': 'child prop2 value'}
