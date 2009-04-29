@@ -1,6 +1,7 @@
 from jstools import merge
 import os
 import tempfile
+
 libdir, tempdir = None, None
 
 def load_config(config_name, outputdir, defaults=None):
