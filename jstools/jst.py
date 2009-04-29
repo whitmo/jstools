@@ -139,34 +139,37 @@ class SourceFile(object):
                 if label.startswith("("):
                     if label == "(define)":
                         for defline in block:
-                            m = re.match(r"\s*(\w+)\s*=\s*(.*?)\s*$", defline)
+                            m = re.match(r"\s*([\w\[\]]+)\s*=\s*(.*?)\s*$", defline)
                             if m:
-                                data[m.group(1)] = m.group(2)
+                                self._add_data(data, m.group(1), m.group(2))
                     elif label == "(extends)":
                         self.extends = [path.strip() for path in block if path.strip()]
                 else:
                     block = "\n".join(block)
-                    m = re.match(r"(\w+)\[(.*?)\]", label)
-                    if m:
-                        name = m.group(1)
-                        key = m.group(2)
-                        if len(key) > 0:
-                            # dictionary
-                            if not name in data:
-                                data[name] = {}
-                            data[name][key] = block
-                        else:
-                            # list
-                            if not name in data:
-                                data[name] = []
-                            data[name] += [block]
-                    else:
-                        data[label] = block
+                    self._add_data(data, label, block)
             if len(data) > 0:
                 self._data = data
             else:
                 self._data = None
         return self._data
+    
+    def _add_data(self, data, label, block):
+        m = re.match(r"(\w+)\[(.*?)\]", label)
+        if m:
+            name = m.group(1)
+            key = m.group(2)
+            if len(key) > 0:
+                # dictionary
+                if not name in data:
+                    data[name] = {}
+                data[name][key] = block
+            else:
+                # list
+                if not name in data:
+                    data[name] = []
+                data[name] += [block]
+        else:
+            data[label] = block
     
     def inherit(self, files):
         for obj in files:
