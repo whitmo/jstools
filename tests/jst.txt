@@ -16,6 +16,8 @@ Consider some code with well formatted comment blocks::
     ...  *    There are multiple lines.  Indentation may not decrease
     ...  *    below the level of the first line.
     ...  */
+    ...
+    ... /** non jst-specific comment **/
     ... 
     ... /** jst: bar[]
     ...  *  Create a list with brackets following the label.
