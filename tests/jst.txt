@@ -1,0 +1,116 @@
+``jst`` basics
+==============
+
+Accessing data in comments
+--------------------------
+
+Consider some code with well formatted comment blocks::
+
+    >>> code = """
+    ... /**
+    ...  *  This is a plain old comment block.
+    ...  */
+    ...  
+    ... /** jst: foo
+    ...  *  This comment block has the foo label.
+    ...  *    There are multiple lines.  Indentation may not decrease
+    ...  *    below the level of the first line.
+    ...  */
+    ... 
+    ... /** jst: bar[]
+    ...  *  Create a list with brackets following the label.
+    ...  */
+    ... 
+    ... /** jst: bar[]
+    ...  *  Keep adding items to a list.
+    ...  */ 
+    ... 
+    ... /** jst: chicken[soup]
+    ...  *  Names in brackets for a sorted list.
+    ...  */
+    ... 
+    ... /** jst: chicken[pie]
+    ...  *  These will be dictionaries in the data and lists in the context.
+    ...  */
+    ... 
+    ... /** jst: chicken[rat]
+    ...  *  This will eventually allow for access to inherited data.
+    ...  */
+    ... 
+    ... /** jst: (define)
+    ...  *  convenient = way
+    ...  *  to = assign
+    ...  *  keys = values
+    ...  */
+    ... """
+
+Now import jst and create an object representing the lines of code::
+
+    >>> from jstools import jst
+    >>> obj = jst.SourceFile(code)
+
+The comments are parsed as a tuple of dictionaries with 'label' and 'block'
+keys::
+
+    >>> comments = obj.comments
+    >>> len(comments)
+    7
+    >>> comments[0]['label']
+    'foo'
+    >>> comments[1]['label']
+    'bar[]'
+    >>> comments[2]['block']
+    ('Keep adding items to a list.', '')
+    >>> comments[6]['label']
+    '(define)'
+
+The comment blocks are accessible through the data dictionary.  The values for
+simple labels are strings.  Label values with empty brackets have been
+converted to lists of strings.  Label values with names in brackets have been
+converted to dictionaries.  Items in blocks labeled (defines) have been parsed
+as key, value pairs::
+
+    >>> obj.data['foo']
+    'This comment block has the foo label.\n  There are multiple lines.  Indentation may not decrease\n  below the level of the first line.\n'
+    >>> obj.data['bar']
+    ['Create a list with brackets following the label.\n', 'Keep adding items to a list.\n']
+    >>> type(obj.data['chicken'])
+    <type 'dict'>
+    >>> obj.data['convenient']
+    'way'
+
+
+Testing various comment formats
+-------------------------------
+
+Make sure that different comment formats don't mess things up::
+
+    >>> obj = jst.SourceFile("""
+    ... /** regular old comment */
+    ... 
+    ... /** jst: foo
+    ...  *  foo content
+    ...  */
+    ... 
+    ... some_code; /* comment */
+    ...  
+    ... /** jst: one_liner = the one liner value */ 
+    ...  
+    ... /** jst: bar
+    ...  *  bar content
+    ...  */
+    ... """)
+
+We expect three comments.  The one liner is like a single line from a (defines) block::
+
+    >>> len(obj.comments)
+    3
+    >>> obj.comments[0]
+    {'block': ('foo content', ''), 'label': 'foo'}
+    >>> obj.comments[1]
+    {'block': ('one_liner = the one liner value',), 'label': '(define)'}
+    >>> obj.comments[2]
+    {'block': ('bar content', ''), 'label': 'bar'}
+    >>> obj.data['one_liner']
+    'the one liner value'
+
