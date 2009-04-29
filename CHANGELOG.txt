@@ -1,3 +1,7 @@
+2009-04-29  whit  <whit@opengeo.org>
+
+	* Add docparser for use with sphinx (from tschaub)
+
 2009-04-23  whit  <whit@opengeo.org>
 
 	* add yuicompressor support
