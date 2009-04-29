@@ -54,8 +54,11 @@ setup(
     [jstools.compressor]
     default=jstools.jsmin:compressor_plugin
     yui=jstools.yuicompressor:compress [yuicompressor]
+    [jstools.docs]
+    default=jstools.jst [sphinx]
     """,
-    extras_require=dict(yuicompressor="Paver"),
+    extras_require=dict(yuicompressor=["Paver"],
+                        sphinx=['Jinja2']),
     test_suite='nose.collector',
     tests_require=['nose']
     )
