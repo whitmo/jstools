@@ -2,64 +2,62 @@
  JSTools
 =========
 
-'JSTools' is a collection of utilities for managing JavaScript libraries.
+ 'JSTools' is a collection of utilities for managing JavaScript libraries.
 
 Install
 =======
 
-Until jstools is released into pypi, we suggest checking out jstools
-and installing using either 'python setup.py install' or 'python
-setup.py develop' from within your checkout.
+ Until jstools is released into pypi, we suggest checking out jstools
+ and installing using either 'python setup.py install' or 'python
+ setup.py develop' from within your checkout.
 
 Requirements
 ------------
 
-Should be python 2.4 friendly, tested most on python 2.5
+ Should be python 2.4 friendly, tested most on python 2.5
 
 Easy Install
 ------------
 
  $ easy_install jstools
 
-'/your/javascript/distribution/bin'.
-
-This will ut the following scripts in '/your/python/distribution/bin'::
+ This will put the following scripts in '/your/python/distribution/bin'::
 
  $ bin/jsbuild
  $ bin/jsmin
 
-Depending on your system, this action may require sudo.
+ Depending on your system, this action may require sudo.
 
 
 Environment Install
 -------------------
 
-'jstools' includes a script to create a contained python
-environment. This script also automatically downloads the yui
-compressor and puts it in a place jstools can find it.
+ 'jstools' includes a script to create a contained python
+ environment. This script also automatically downloads the yui
+ compressor and puts it in a place jstools can find it.
 
-This script will turn a folder of your choice into a python
-environment [#]_ with the jstools scripts installed in a directory
-called 'bin'::
+ This script will turn a folder of your choice into a python
+ environment [#]_ with the jstools scripts installed in a directory
+ called 'bin'::
 
-  $ easy_install -b ./ -e jstools
-  $ python jstools/install_jstools ./jsdir
+   $ easy_install -b ./ -e jstools
+   $ python jstools/install_jstools ./jsdir
 
-This makes 'jsdir' jstools enabled with it's own 'bin'. source the
-script 'bin/activate', and now jsbuild and jsmin are on your path::
+ This makes 'jsdir' jstools enabled with it's own 'bin'. source the
+ script 'bin/activate', and now jsbuild and jsmin are on your path::
 
-  $ cd jsdir
-  $ . bin/activate
+   $ cd jsdir
+   $ . bin/activate
 
 
 Other Distribution Options
 --------------------------
 
-You can download jstools in whatever flavor your prefer::
+ You can download jstools in whatever flavor your prefer::
 
- $ wget http://github.com/whitmo/jstools/tarball/master
- $ svn co http://svn.opengeo.org/jstools/trunk/ # not currently working
- $ git clone git://github.com/whitmo/jstools.git
+  $ wget http://github.com/whitmo/jstools/tarball/master
+  $ svn co http://svn.opengeo.org/jstools/trunk/ # not currently working
+  $ git clone git://github.com/whitmo/jstools.git
 
 
 Scripts
@@ -68,17 +66,15 @@ Scripts
 jsbuild
 -------
 
-Merges and compresses files according to a configuration file.
-jsbuild will walk each root directory specified in configuration,
-index all the files ending with .js and then compile an aggregate
-source based on the specification in the config file and the
-dependencies declared inside the files themselves.
+ Merges and compresses files according to a configuration file.
+ jsbuild will walk each root directory specified in configuration,
+ index all the files ending with .js and then compile an aggregate
+ source based on the specification in the config file and the
+ dependencies declared inside the files themselves.
 
 
 Usage
 ~~~~~
-
-
 
 jsbuild <config_file> [options]
 
@@ -125,24 +121,24 @@ multiple sections).
 
 A section is formatted in the following fashion::
 
-[Output.js]
-root=
+ [Output.js]
+ root=
       path/to/where/files/are
       other/path/to/where/files/are
 
-license=path/to/license/for/these/libs
+ license=path/to/license/for/these/libs
 
-first=        
+ first=        
       3rd/prototype.js
       core/application.js
       core/params.js
 
-last=
+ last=
      core/api.js
 
-exclude=
+ exclude=
       3rd/logger.js
-#...
+ #...
 
 
 The files listed in the `first` section will be forced to load
