@@ -26,15 +26,16 @@ Consider some code with well formatted comment blocks::
     ...  */ 
     ... 
     ... /** jst: chicken[soup]
-    ...  *  Names in brackets for a sorted list.
+    ...  *  Names in brackets for a dictionary.
     ...  */
     ... 
     ... /** jst: chicken[pie]
-    ...  *  These will be dictionaries in the data and lists in the context.
+    ...  *  This content will be the value of the 'pie' key in the 'chicken'
+    ...  *  dictionary.
     ...  */
     ... 
     ... /** jst: chicken[rat]
-    ...  *  This will eventually allow for access to inherited data.
+    ...  *  These values will be inherited by data that extends this.
     ...  */
     ... 
     ... /** jst: (define)
