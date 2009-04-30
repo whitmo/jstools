@@ -7,7 +7,6 @@ from jinja2 import Template
 from jstools import tsort
 import os
 import re
-import sys
 
 SUFFIX_JS = ".js"
 SUFFIX_JST = ".jst"
@@ -82,6 +81,9 @@ class DocParser(ConfigParser):
                 template = Template(open(template_filename, "U").read())
                 out = template.render(jsfile.data)
                 output_filename = os.path.join(outdir, filepath.split(SUFFIX_JS)[0] + SUFFIX_RST)
+                output_dirname = os.path.dirname(output_filename)
+                if not os.path.exists(output_dirname):
+                    os.makedirs(output_dirname)
                 f = open(output_filename, "w")
                 f.write(out)
                 f.close()
