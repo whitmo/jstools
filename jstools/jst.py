@@ -11,6 +11,7 @@ import re
 SUFFIX_JS = ".js"
 SUFFIX_JST = ".jst"
 SUFFIX_RST = ".rst"
+DEFAULT_MARKER = "api"
 
 _marker = object()
 
@@ -21,9 +22,9 @@ class DocParser(ConfigParser):
         ConfigParser.__init__(self, defaults)
 
     @classmethod
-    def from_fn(cls, fn):
+    def from_fn(cls, fn, defaults=None):
         """Load up config files in our parser."""
-        parser = cls()
+        parser = cls(defaults)
         if isinstance(fn, basestring):
             fn = fn,
         fns = parser.read(fn)
@@ -58,7 +59,9 @@ class DocParser(ConfigParser):
                 for filename in entries:
                     if filename.endswith(SUFFIX_JS) and not filename.startswith("."):
                         filepath = os.path.join(root, filename)[len(sourcedir)+1:]
-                        jsfile = SourceFile.from_filename(os.path.join(sourcedir, filepath))
+                        jsfile = SourceFile.from_filename(
+                            os.path.join(sourcedir, filepath),
+                            cfg)
                         if jsfile.data:
                             files[filepath] = jsfile
         
@@ -93,25 +96,30 @@ class SourceFile(object):
     """
     Represents a JavaScript source code file.
     """
-    def __init__(self, source):
+    def __init__(self, source, options=None):
         self.source = source
+        self.options = options
         self._data = _marker
         self._comments = _marker
         self._context = _marker
         self.extends = []
     
     @classmethod
-    def from_filename(cls, filename):
+    def from_filename(cls, filename, options=None):
         fh = open(filename, "U")
         source = fh.read()
         fh.close()
-        return cls(source)
+        return cls(source, options=options)
         
     @property
     def comments(self):
         if self._comments == _marker:
             comments = ()
-            for comment in re.findall(r'^\s*/\*\*\s*jst\s*:\s*([\S\s]*?)\*+/', self.source, re.MULTILINE):
+            if self.options and "marker" in self.options:
+                marker = self.options["marker"]
+            else:
+                marker = DEFAULT_MARKER
+            for comment in re.findall(r'^\s*/\*\*\s*' + marker + '\s*:\s*([\S\s]*?)\*+/', self.source, re.MULTILINE):
                 lines = [re.sub(r'^\s*\*+', '', line.rstrip()) for line in comment.split('\n')]
                 if len(lines) == 1:
                     label = "(define)"
