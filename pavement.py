@@ -20,7 +20,7 @@ setuputils.install_distutils_tasks()
 version = '0.1.2dev'
 
 try:
-    description = ''.join([x for x in open('README.txt')])
+    description = ''.join([x for x in open('README.rst')])
 except IOError:
     description = ""
 
