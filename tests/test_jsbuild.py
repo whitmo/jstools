@@ -63,6 +63,7 @@ def test_concatenate():
     Passing Merger.run a concatenate kwarg should create a single
     """
     merger = file_tree(depcfg="data/concat-dep.cfg", conf="meta-concatenate", output_files=("Output1.js", "Output2.js", "Output3.js"))
+
     outfiles = merger.run(concatenate="sfb.js")
     sfb = open(outfiles[0])
     out = sfb.read()
