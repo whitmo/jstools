@@ -7,6 +7,7 @@ from ConfigParser import ConfigParser
 from jstools import REQ, DIST
 from jstools import tsort
 from StringIO import StringIO
+from pprint import pprint
 import logging
 import os
 import pkg_resources
@@ -65,10 +66,10 @@ class Merger(ConfigParser):
         all_inc = (cfg['first'] + cfg['include'] + cfg['last'])
         files = {}
         for sourcedir in sourcedirs:
-            files.update(dict((filepath, self.make_sourcefile(sourcedir, filepath, exclude)) \
-                        for filepath in jsfiles_for_dir(sourcedir) \
-                        if (include and filepath in all_inc or \
-                            (not include and filepath not in exclude))))
+            newfiles = list(((filepath, self.make_sourcefile(sourcedir, filepath, exclude)) \
+                        for filepath in jsfiles_for_dir(sourcedir)))
+            newfiles = list((filepath, sf) for filepath, sf in newfiles if filepath in all_inc and filepath not in exclude)
+            files.update(dict(newfiles))
 
         # ensure all @include and @requires references are in
         complete = False
