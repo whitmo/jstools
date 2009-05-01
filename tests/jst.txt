@@ -11,34 +11,34 @@ Consider some code with well formatted comment blocks::
     ...  *  This is a plain old comment block.
     ...  */
     ...  
-    ... /** jst: foo
+    ... /** api: foo
     ...  *  This comment block has the foo label.
     ...  *    There are multiple lines.  Indentation may not decrease
     ...  *    below the level of the first line.
     ...  */
     ...
-    ... /** jst: bar[]
+    ... /** api: bar[]
     ...  *  Create a list with brackets following the label.
     ...  */
     ... 
-    ... /** jst: bar[]
+    ... /** api: bar[]
     ...  *  Keep adding items to a list.
     ...  */ 
     ... 
-    ... /** jst: chicken[soup]
+    ... /** api: chicken[soup]
     ...  *  Names in brackets for a dictionary.
     ...  */
     ... 
-    ... /** jst: chicken[pie]
+    ... /** api: chicken[pie]
     ...  *  This content will be the value of the 'pie' key in the 'chicken'
     ...  *  dictionary.
     ...  */
     ... 
-    ... /** jst: chicken[rat]
+    ... /** api: chicken[rat]
     ...  *  These values will be inherited by data that extends this.
     ...  */
     ... 
-    ... /** jst: (define)
+    ... /** api: (define)
     ...  *  convenient = way
     ...  *  to = assign
     ...  *  keys = values
@@ -89,15 +89,15 @@ Make sure that different comment formats don't mess things up::
     >>> obj = jst.SourceFile("""
     ... /** regular old comment */
     ... 
-    ... /** jst: foo
+    ... /** api: foo
     ...  *  foo content
     ...  */
     ... 
     ... some_code; /* comment */
     ...  
-    ... /** jst: one_liner = the one liner value */ 
+    ... /** api: one_liner = the one liner value */ 
     ...  
-    ... /** jst: bar
+    ... /** api: bar
     ...  *  bar content
     ...  */
     ... """)
@@ -124,22 +124,22 @@ Create some dummy source file objects and check their data dictionaries::
     >>> from pprint import pprint
     >>> parent = jst.SourceFile("""
     ... 
-    ...     /** jst: prop1 = parent prop1 value */
+    ...     /** api: prop1 = parent prop1 value */
     ... 
-    ...     /** jst: prop2 = parent prop2 value */
+    ...     /** api: prop2 = parent prop2 value */
     ... 
-    ...     /** jst: d[key1] = parent d['key1'] value */
+    ...     /** api: d[key1] = parent d['key1'] value */
     ...     
-    ...     /** jst: d[key2] = parent d['key2'] value */
+    ...     /** api: d[key2] = parent d['key2'] value */
     ... 
     ... """)    
     >>> child = jst.SourceFile("""
     ... 
-    ...     /** jst: prop2 = child prop2 value */
+    ...     /** api: prop2 = child prop2 value */
     ... 
-    ...     /** jst: d[key2] = child d['key2'] value */
+    ...     /** api: d[key2] = child d['key2'] value */
     ... 
-    ...     /** jst: d[key3] = child d['key3'] value */
+    ...     /** api: d[key3] = child d['key3'] value */
     ... 
     ... """)
     >>> pprint(parent.data)
@@ -163,3 +163,42 @@ Now, extend the child with data from the parent::
            'key3': "child d['key3'] value"},
      'prop1': 'parent prop1 value',
      'prop2': 'child prop2 value'}
+
+
+Test out comments with different markers
+----------------------------------------
+
+By default, the parser looks for comments marked with api::
+
+    >>> obj = jst.SourceFile("""
+    ... /** api: foo = bar */
+    ... """)
+    >>> obj = jst.SourceFile("/** api: foo = bar */")
+    >>> len(obj.comments)
+    1
+    >>> obj = jst.SourceFile("/** custom: foo = bar */")
+    >>> len(obj.comments)
+    0
+    
+You can choose a custom marker by setting the 'marker' value in the options
+dict::
+
+    >>> obj = jst.SourceFile("/** custom: foo = bar */", {'marker': 'custom'})
+    >>> len(obj.comments)
+    1
+    >>> obj.data
+    {'foo': 'bar'}
+
+The 'marker' value is used as part of a regular expression, so you can search
+for multiple markers::
+
+    >>> code = """
+    ... /** good: comment[] = foo */
+    ... /** also_good: comment[] = bar */
+    ... /** no_good: comment[] = baz */
+    ... """
+    >>> jst.SourceFile(code, {'marker': 'good'}).data
+    {'comment': ['foo']}
+    >>> jst.SourceFile(code, {'marker': '(good|also_good)'}).data
+    {'comment': ['foo', 'bar']}
+

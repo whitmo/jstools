@@ -119,7 +119,8 @@ class SourceFile(object):
                 marker = self.options["marker"]
             else:
                 marker = DEFAULT_MARKER
-            for comment in re.findall(r'^\s*/\*\*\s*' + marker + '\s*:\s*([\S\s]*?)\*+/', self.source, re.MULTILINE):
+            for match in re.finditer(r'^\s*/\*\*\s*' + marker + '\s*:\s*(?P<comment>[\S\s]*?)\*+/', self.source, re.MULTILINE):
+                comment = match.group('comment')
                 lines = [re.sub(r'^\s*\*+', '', line.rstrip()) for line in comment.split('\n')]
                 if len(lines) == 1:
                     label = "(define)"
