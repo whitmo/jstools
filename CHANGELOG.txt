@@ -1,3 +1,7 @@
+2009-06-15  whit  <whit@opengeo.org>
+
+	* Hooked up streamhandler to reenable -v flag
+
 2009-04-29  whit  <whit@opengeo.org>
 
 	* Add docparser for use with sphinx (from tschaub)
