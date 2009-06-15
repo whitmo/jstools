@@ -14,8 +14,6 @@ try:
 except ImportError:
     wraps = lambda func: func
 
-logger = logging.getLogger('jstools')
-
 def arg_parser(optparser):
     "Allows for short circuiting of optparser"
 
@@ -31,10 +29,19 @@ def arg_parser(optparser):
 
 
 def printer(verbosity):
+    _print = lambda x: None
+    logger = logging.getLogger('jstools')
+    logger.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.DEBUG)
+    ch.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(ch)
+    _print = logger.info
     def _printer(txt, threshold=1):
         if int(verbosity) >= threshold:
-            logger.info(txt)
+            _print(txt)
     return _printer
+
 
 
 class SectionMap(DictMixin):
