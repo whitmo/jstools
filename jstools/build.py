@@ -63,8 +63,11 @@ def default_merge(args=None, options=None, parser=None):
                             output_dir=options.output_dir,
                             defaults={'resource-dir':options.resource_dir},
                             printer=printer)
-    out = merger.run(uncompressed=options.uncompress, single=options.single_file, compressor=options.compressor)
-    printer("Done: %s" %out, 0)    
+    out = merger.run(uncompressed=options.uncompress,
+                     single=options.single_file,
+                     compressor=options.compressor)
+    printer("Done:", 0)    
+    printer("\n".join(out), 0)
 
 
 def build():
