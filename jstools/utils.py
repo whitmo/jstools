@@ -12,7 +12,12 @@ import os
 try:
     from functools import wraps
 except ImportError:
-    wraps = lambda func: func
+    def wraps(f):
+        def _decorator(func):
+            def _wrapper(*args, **kwargs):
+                func(*args, **kwargs)
+            return _wrapper
+        return _decorator
 
 def arg_parser(optparser):
     "Allows for short circuiting of optparser"
