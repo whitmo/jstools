@@ -17,7 +17,7 @@ from ConfigParser import ConfigParser
 from paver import setuputils
 
 setuputils.install_distutils_tasks()
-version = '0.1.3a'
+version = '0.1.4a'
 
 try:
     description = ''.join([x for x in open('README.rst')])
