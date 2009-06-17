@@ -7,6 +7,8 @@ optionflags = (doctest.REPORT_ONLY_FIRST_FAILURE |
                doctest.NORMALIZE_WHITESPACE |
                doctest.ELLIPSIS)
 
+globs = dict()
+
 def list_doctests():
     print __file__
     return [filename
