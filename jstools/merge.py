@@ -61,13 +61,23 @@ class Merger(ConfigParser):
         sourcedirs = cfg['root']
 
         # assemble all files in source directory according to config
-        include = cfg.get('include', False)
+        include = cfg.get('include', tuple())
         exclude = cfg['exclude']
-        all_inc = (cfg['first'] + cfg['include'] + cfg['last'])
+        all_inc = cfg['first'] + cfg['include'] + cfg['last']
         files = {}
+        implicit = False
+        if not len(all_inc):
+            # implicit file inclusion
+            implicit = True
+
         for sourcedir in sourcedirs:
-            newfiles = list(((filepath, self.make_sourcefile(sourcedir, filepath, exclude)) \
-                        for filepath in jsfiles_for_dir(sourcedir)))
+            newfiles = []
+            for filepath in jsfiles_for_dir(sourcedir):
+                fitem = filepath, srcfile = filepath, self.make_sourcefile(sourcedir, filepath, exclude),
+                if implicit and not filepath in exclude:
+                    all_inc.append(filepath)
+                newfiles.append(fitem)
+
             newfiles = list((filepath, sf) for filepath, sf in newfiles if filepath in all_inc and filepath not in exclude)
             files.update(dict(newfiles))
 
