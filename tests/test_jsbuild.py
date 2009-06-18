@@ -11,6 +11,7 @@ R_FILES = re.compile(r"var filename='(.*?/.*?)';")
 libdir, tempdir = None, None
 
 license = "/* ### LICENSE ### */"
+license2 = "/* ### LICENSE2 ### */"
 
 def set_faux_files(cfg, libdir, *filenames):
     for fn in filenames:
@@ -81,6 +82,7 @@ def test_implicit():
     assert not '3rd/logger.js' in results
 
 
+
 def test_merger_by_file():
     DIST = pkg_resources.Requirement.parse("jstools")
     filename = pkg_resources.resource_filename(DIST, "data/basic.cfg")
@@ -107,7 +109,10 @@ def test_concatenate():
     files_found = R_FILES.findall(sfb.read())
     assert files_found == ['core1/lib1.js', 'core2/lib2.js', 'core3/lib3.js']
 
+
+#@@ fragile 
 jsmin_result = """
+/* ### LICENSE ### */
 (function(){window.NameSpace={};var long_internal_var=[1,2,3,4];var long_internal_var2=[long_internal_var,long_internal_var];window.NameSpace.extra_var=long_internal_var2;})();Namespace.Node={class_var:5,api_method:function(some_argument){var long_name_var=some_argument+1;return long_name_var;},api_method2:function(some_argument){return this.api_method(some_argument)+this.class_var;}};
 """
 
@@ -116,16 +121,20 @@ def compression_setup():
     js = pkg_resources.resource_string(REQ, "data/compress.js")
     open(os.path.join(testutils.libdir, "compress.js"), "w+").write(js)
     return merger
+
     
 def test_default_compression():
     # jsmin default
     merger = compression_setup()
     outfiles = merger.run()
-    sfb = open(outfiles[0])
-    assert sfb.read().strip() == jsmin_result.strip()
+    sfb = open(outfiles[0]).read().strip()
+    assert sfb == jsmin_result.strip(), sfb
 
+#@@ fragile 
 yui_result_noargs = """
-(function(){window.NameSpace={};var b=[1,2,3,4];var a=[b,b];window.NameSpace.extra_var=a})();Namespace.Node={class_var:5,api_method:function(b){var a=b+1;return a},api_method2:function(a){return this.api_method(a)+this.class_var}};"""
+/* ### LICENSE ### */
+(function(){window.NameSpace={};var b=[1,2,3,4];var a=[b,b];window.NameSpace.extra_var=a})();Namespace.Node={class_var:5,api_method:function(b){var a=b+1;return a},api_method2:function(a){return this.api_method(a)+this.class_var}};
+"""
 
 def test_yui_compression():
     merger = compression_setup()
@@ -135,5 +144,8 @@ def test_yui_compression():
             raise ValueError("You must run 'paver get_yuicomp' to setup for this test")
     # yui no args: requires a default instance of yui available
     outfiles = merger.run(compressor="yui")
-    sfb = open(outfiles[0])
-    assert sfb.read().strip() == yui_result_noargs.strip()
+
+    sfb = open(outfiles[0]).read().strip()
+    assert sfb == yui_result_noargs.strip(), sfb
+
+
