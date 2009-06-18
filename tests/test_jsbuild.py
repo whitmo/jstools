@@ -162,4 +162,5 @@ def test_license_wrapping():
     assert sfb.startswith("/*")
 
 
-#@@ need test for compression with concat 
+#@@ need test for compression with concat
+#@@ need test for licenses with concat 
