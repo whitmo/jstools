@@ -160,3 +160,6 @@ def test_license_wrapping():
     outfiles = merger.run()
     sfb = open(outfiles[0]).read().strip()
     assert sfb.startswith("/*")
+
+
+#@@ need test for compression with concat 
