@@ -11,7 +11,7 @@ R_FILES = re.compile(r"var filename='(.*?/.*?)';")
 libdir, tempdir = None, None
 
 license = "/* ### LICENSE ### */"
-license2 = "/* ### LICENSE2 ### */"
+license2 = "### LICENSE2 ###"
 
 def set_faux_files(cfg, libdir, *filenames):
     for fn in filenames:
@@ -130,6 +130,7 @@ def test_default_compression():
     sfb = open(outfiles[0]).read().strip()
     assert sfb == jsmin_result.strip(), sfb
 
+
 #@@ fragile 
 yui_result_noargs = """
 /* ### LICENSE ### */
@@ -149,3 +150,13 @@ def test_yui_compression():
     assert sfb == yui_result_noargs.strip(), sfb
 
 
+def test_license_wrapping():
+    """
+    Licenses unwrapped by comment should get wrapped
+    """
+    merger = compression_setup()
+    lp = merger.get('Output.js', 'license')
+    open(lp, 'w').write(license2)
+    outfiles = merger.run()
+    sfb = open(outfiles[0]).read().strip()
+    assert sfb.startswith("/*")
