@@ -35,6 +35,7 @@ def test_circular_deps_config():
     # but for now, the merg should run
     assert merger.run(uncompressed=True, single='Output.js')
 
+
 def test_exclude():
     """
     Exclude should trump all other declarations of dependency
@@ -49,6 +50,35 @@ def test_exclude():
         assert 'prototype.js' not in results[ln], ValueError(results[ln])
         # included
         assert 'api.js' not in results[ln], ValueError(results[ln])
+
+
+def results_from_uncompressed_outfile(fp):
+    resfile = open(fp)
+    results = (x.strip() for x in resfile.readlines())
+    results = (R_FILES.match(x) for x in results if x.startswith('var'))
+    try:
+        return [x.groups()[0] for x in results]
+    finally:
+        resfile.close()
+
+
+def test_implicit():
+    """
+    If not 'include', 'first', or 'last' is given, all files in the
+    source directly should be added if not specified in the 'exclude'
+    section.
+    """
+    merger = file_tree()
+    merger.remove_option('Output.js', 'first')
+    merger.remove_option('Output.js', 'last')
+
+    out = merger.run(uncompressed=True, single='Output.js', strip_deps=True)
+    results = results_from_uncompressed_outfile(out[0])
+    assert sorted(results) == ['3rd/prototype.js',
+                               'core/api.js',
+                               'core/application.js',
+                               'core/params.js']
+    assert not '3rd/logger.js' in results
 
 
 def test_merger_by_file():
