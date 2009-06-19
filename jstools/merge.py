@@ -66,7 +66,7 @@ class Merger(ConfigParser):
         all_inc = cfg['first'] + cfg['include'] + cfg['last']
         files = {}
         implicit = False
-        if not len(all_inc):
+        if not len(include):            
             # implicit file inclusion
             implicit = True
 
@@ -175,9 +175,9 @@ class Merger(ConfigParser):
         else:
             outputfilename = os.path.join(self.output_dir, section)
 
-        if cfg['license']:
-            self.printer("Adding license file: %s" %cfg['license'])
-            merged = "\n".join((file(cfg['license']).read(), merged))
+##         if cfg['license']:
+##             self.printer("Adding license file: %s" %cfg['license'])
+##             merged = "\n".join((file(cfg['license']).read(), merged))
         return outputfilename, merged
 
     def js_sections(self):
@@ -193,49 +193,88 @@ class Merger(ConfigParser):
             return sections
         return raw_sections
 
+    @staticmethod
+    def fetch_license(cfg):
+        license = ""
+        if cfg['license']:
+            license = file(cfg['license']).read()
+            if not license.startswith("/*"):
+                license = "/* %s */" %license
+        return license
+
+    def cat_run(self, outfile, sections, uncompressed=False, strip_deps=True, compressor='default'):
+        newfiles = []
+        cat = dict()
+        lic = dict()
+        for section in sections:
+            cfg = self.make_cfg(section)
+            outputfilename, merged = self.do_section(section, cfg)
+            license = self.fetch_license(cfg)
+            if license:
+                lic[outputfilename] = license
+            cat[outputfilename] = merged
+            newfiles.append(outputfilename)
+            
+        outputfilename = os.path.join(self.output_dir, outfile)
+        catted = StringIO()
+        license = StringIO()
+        seen = []
+        for name in newfiles:
+            print >> catted, cat[name]
+            licout = lic[name]
+            if licout not in seen: #slow?
+                print >> license, licout
+                seen.append(licout)
+
+
+        merged = catted.getvalue()
+        if not uncompressed:
+            self.printer("Compressing %s" %outputfilename)
+            merged = self.compress(merged, compressor, self)
+        elif strip_deps:
+            merged = self.strip_deps(merged)
+        merged_lic = license.getvalue()
+        merged = "%s\n%s" %(merged_lic, merged)
+
+        self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
+        sfb = file(outputfilename, "w").write(merged)
+        newfiles = [outputfilename]
+            
+        return newfiles
+
+    def nocat_run(self, sections, uncompressed=False, strip_deps=True, compressor='default'):
+        newfiles = []
+
+        for section in sections:
+            cfg = self.make_cfg(section)
+            license = self.fetch_license(cfg)
+
+            outputfilename, merged = self.do_section(section, cfg)
+            if not uncompressed:
+                self.printer("Compressing %s" %outputfilename)
+                merged = self.compress(merged, compressor, self)
+            elif strip_deps:
+                merged = self.strip_deps(merged)
+            self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
+            if license:
+                self.printer("Adding license file: %s" %cfg['license'])
+                merged = "\n".join((license, merged))
+            file(outputfilename, "w").write(merged)
+                
+            newfiles.append(outputfilename)
+        return newfiles
+
     def run(self, uncompressed=False, single=None, strip_deps=True, concatenate=None, compressor="default"):
         sections = self.js_sections()
         if single is not None:
             assert single in sections, ValueError("%s not in %s" %(single, sections))
             sections = [single]
             
-        #@@ refactor into a function for cat and one for multiples
-        newfiles = []
-        cat = dict()
-        for section in sections:
-            cfg = self.make_cfg(section)
-            if not concatenate:
-                outputfilename, merged = self.do_section(section, cfg)
-                if not uncompressed:
-                    self.printer("Compressing %s" %outputfilename)
-                    merged = self.compress(merged, compressor, self)
-                elif strip_deps:
-                    merged = self.strip_deps(merged)
-                self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
-                file(outputfilename, "w").write(merged)
-            else:
-                outputfilename, merged = self.do_section(section, cfg)
-                cat[outputfilename] = merged
-            newfiles.append(outputfilename)
-
         if concatenate:
-            outputfilename = os.path.join(self.output_dir, concatenate)
-            catted = StringIO()
-            for name in newfiles:
-                print >> catted, cat[name]
+            return self.cat_run(concatenate, sections, uncompressed, strip_deps, compressor)
+        else:
+            return self.nocat_run(sections, uncompressed, strip_deps, compressor)
 
-            merged = catted.getvalue()
-            if not uncompressed:
-                self.printer("Compressing %s" %outputfilename)
-                merged = self.compress(merged, compressor, self)
-            elif strip_deps:
-                merged = self.strip_deps(merged)
-
-            self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
-            sfb = file(outputfilename, "w").write(merged)
-            newfiles = [outputfilename]
-            
-        return newfiles
 
 
 class SourceFile(object):
