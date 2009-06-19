@@ -5,7 +5,7 @@ import tempfile
 libdir, tempdir = None, None
 
 def load_config(config_name, outputdir, defaults=None):
-    if not config_name.endswith('.cfg') or config_name.ends_with('.ini'):
+    if not config_name.endswith('.cfg') or config_name.endswith('.ini'):
         config_name += '.cfg'
     return merge.Merger.from_resource("data/" + config_name, outputdir, defaults=defaults)
 
