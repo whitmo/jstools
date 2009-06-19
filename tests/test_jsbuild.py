@@ -65,7 +65,7 @@ def results_from_uncompressed_outfile(fp):
 
 def test_implicit():
     """
-    If not 'include', 'first', or 'last' is given, all files in the
+    If not an 'include' directive is not given, all files in the
     source directly should be added if not specified in the 'exclude'
     section.
     """
@@ -75,12 +75,60 @@ def test_implicit():
 
     out = merger.run(uncompressed=True, single='Output.js', strip_deps=True)
     results = results_from_uncompressed_outfile(out[0])
-    assert sorted(results) == ['3rd/prototype.js',
-                               'core/api.js',
-                               'core/application.js',
-                               'core/params.js']
+    assert results == ['3rd/prototype.js', 'core/application.js', 'core/api.js', 'core/params.js']
     assert not '3rd/logger.js' in results
 
+
+def test_implicit_just_last():
+    """
+    Running against 'data/basic.cfg' w/out any first entries, all files
+    should be picked up, but 'core/api.js' should be last.
+    """
+    merger = file_tree()
+    merger.remove_option('Output.js', 'first')
+
+    out = merger.run(uncompressed=True, single='Output.js', strip_deps=True)
+    results = results_from_uncompressed_outfile(out[0])
+    assert_basic_order(results)
+
+    assert results[-1] == 'core/api.js'
+    assert not '3rd/logger.js' in results
+
+
+def assert_basic_order(results):
+    """
+    when deps are 'data/deps1.cfg' and first or last is specified as
+    basic.cfg, output order should be:
+
+    ['3rd/prototype.js',
+    'core/application.js',
+    'core/params.js',
+    'core/api.js']
+    
+    """
+    assert results == ['3rd/prototype.js',
+                       'core/application.js',
+                       'core/params.js',
+                       'core/api.js'], results
+
+
+def test_implicit_just_first():
+    """
+    Running against 'data/basic.cfg' w/out any last entries, all files
+    should be picked up, but '3rd/prototype.js' should be first and
+    'core/params.js' should be third.
+    """
+    merger = file_tree()
+    merger.remove_option('Output.js', 'last')
+
+    out = merger.run(uncompressed=True, single='Output.js', strip_deps=True)
+    results = results_from_uncompressed_outfile(out[0])
+
+    #@@ sorting actually hides valuable info here
+    assert_basic_order(results)
+    assert results[0] == '3rd/prototype.js'
+    assert results[2] == 'core/params.js'
+    assert not '3rd/logger.js' in results    
 
 
 def test_merger_by_file():
@@ -92,9 +140,14 @@ def test_merger_by_file():
 
 def test_concatenate():
     """
-    Passing Merger.run a concatenate kwarg should create a single
+    Passing Merger.run a concatenate kwarg should create a single file
     """
     merger = file_tree(depcfg="data/concat-dep.cfg", conf="meta-concatenate", output_files=("Output1.js", "Output2.js", "Output3.js"))
+
+    # set o2 to an alternate license
+    lp = merger.get('Output2.js', 'license') + "2"
+    merger.set('Output2.js', 'license', lp)
+    open(lp, 'w').write(license2)
 
     outfiles = merger.run(concatenate="sfb.js")
     sfb = open(outfiles[0])
@@ -102,12 +155,17 @@ def test_concatenate():
     files_found = R_FILES.findall(out)
     assert files_found == ['core2/lib2.js', 'core3/lib3.js', 'core1/lib1.js']
 
+    assert license in out
+    assert license2 in out
+
     merger.add_section("meta")
     merger.set("meta", "order", "\n".join(['Output1.js', 'Output2.js', 'Output3.js']))
     outfiles = merger.run(concatenate="sfb2.js")
     sfb = open(outfiles[0])
     files_found = R_FILES.findall(sfb.read())
     assert files_found == ['core1/lib1.js', 'core2/lib2.js', 'core3/lib3.js']
+
+
 
 
 #@@ fragile 
@@ -162,5 +220,3 @@ def test_license_wrapping():
     assert sfb.startswith("/*")
 
 
-#@@ need test for compression with concat
-#@@ need test for licenses with concat 
