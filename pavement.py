@@ -49,6 +49,7 @@ setup(
     [console_scripts]
     jsbuild=jstools.build:build
     jsmin = jstools.jsmin:minify
+    jst = jstools.jst:run
     [jstools.jsbuild_command]
     default=jstools.build:default_merge
     [jstools.compressor]

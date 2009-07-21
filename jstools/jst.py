@@ -205,3 +205,10 @@ class SourceFile(object):
                 else:
                     if not key in self._data:
                         self._data[key] = value
+
+def run():
+    import sys
+    DocParser.from_fn(sys.argv[1]).run()
+
+if __name__ == '__main__':
+    run()
