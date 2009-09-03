@@ -57,9 +57,13 @@ setup(
     yui=jstools.yuicompressor:compress [yuicompressor]
     [jstools.docs]
     default=jstools.jst [sphinx]
+    [paste.app_factory]
+    main=jstools.proxy:make_proxy [proxy]
     """,
     extras_require=dict(yuicompressor=["Paver"],
-                        sphinx=['Jinja2']),
+                        sphinx=['Jinja2'],
+                        proxy=['WSGIProxy']),
+    
     test_suite='nose.collector',
     tests_require=['nose']
     )
