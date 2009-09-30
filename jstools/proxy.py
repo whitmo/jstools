@@ -1,4 +1,7 @@
 from wsgiproxy.app import WSGIProxyApp
+from cgi import parse_qs
+
+from urlparse import 
 import urlparse
 import logging
 import functools
@@ -8,7 +11,7 @@ logger = logging.getLogger('jstools.proxy')
 def param_forwarding(sfe):
     @functools.wraps(sfe)
     def wrapper(proxy, environ):
-        url = urlparse.parse_qs(environ['QUERY_STRING']).get('url', None)
+        url = parse_qs(environ['QUERY_STRING']).get('url', None)
         if url is not None:
             if isinstance(url, list):
                 assert len(url) == 1, ValueError('Multiple urls submitted')
