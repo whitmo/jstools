@@ -1,0 +1,204 @@
+``jst`` basics
+==============
+
+Accessing data in comments
+--------------------------
+
+Consider some code with well formatted comment blocks::
+
+    >>> code = """
+    ... /**
+    ...  *  This is a plain old comment block.
+    ...  */
+    ...  
+    ... /** api: foo
+    ...  *  This comment block has the foo label.
+    ...  *    There are multiple lines.  Indentation may not decrease
+    ...  *    below the level of the first line.
+    ...  */
+    ...
+    ... /** api: bar[]
+    ...  *  Create a list with brackets following the label.
+    ...  */
+    ... 
+    ... /** api: bar[]
+    ...  *  Keep adding items to a list.
+    ...  */ 
+    ... 
+    ... /** api: chicken[soup]
+    ...  *  Names in brackets for a dictionary.
+    ...  */
+    ... 
+    ... /** api: chicken[pie]
+    ...  *  This content will be the value of the 'pie' key in the 'chicken'
+    ...  *  dictionary.
+    ...  */
+    ... 
+    ... /** api: chicken[rat]
+    ...  *  These values will be inherited by data that extends this.
+    ...  */
+    ... 
+    ... /** api: (define)
+    ...  *  convenient = way
+    ...  *  to = assign
+    ...  *  keys = values
+    ...  */
+    ... """
+
+Now import jst and create an object representing the lines of code::
+
+    >>> from jstools import jst
+    >>> obj = jst.SourceFile(code)
+
+The comments are parsed as a tuple of dictionaries with 'label' and 'block'
+keys::
+
+    >>> comments = obj.comments
+    >>> len(comments)
+    7
+    >>> comments[0]['label']
+    'foo'
+    >>> comments[1]['label']
+    'bar[]'
+    >>> comments[2]['block']
+    ('Keep adding items to a list.', '')
+    >>> comments[6]['label']
+    '(define)'
+
+The comment blocks are accessible through the data dictionary.  The values for
+simple labels are strings.  Label values with empty brackets have been
+converted to lists of strings.  Label values with names in brackets have been
+converted to dictionaries.  Items in blocks labeled (defines) have been parsed
+as key, value pairs::
+
+    >>> obj.data['foo']
+    'This comment block has the foo label.\n  There are multiple lines.  Indentation may not decrease\n  below the level of the first line.\n'
+    >>> obj.data['bar']
+    ['Create a list with brackets following the label.\n', 'Keep adding items to a list.\n']
+    >>> type(obj.data['chicken'])
+    <type 'dict'>
+    >>> obj.data['convenient']
+    'way'
+
+
+Testing various comment formats
+-------------------------------
+
+Make sure that different comment formats don't mess things up::
+
+    >>> obj = jst.SourceFile("""
+    ... /** regular old comment */
+    ... 
+    ... /** api: foo
+    ...  *  foo content
+    ...  */
+    ... 
+    ... some_code; /* comment */
+    ...  
+    ... /** api: one_liner = the one liner value */ 
+    ...  
+    ... /** api: bar
+    ...  *  bar content
+    ...  */
+    ... """)
+
+We expect three comments.  The one liner is like a single line from a (defines) block::
+
+    >>> len(obj.comments)
+    3
+    >>> obj.comments[0]
+    {'block': ('foo content', ''), 'label': 'foo'}
+    >>> obj.comments[1]
+    {'block': ('one_liner = the one liner value',), 'label': '(define)'}
+    >>> obj.comments[2]
+    {'block': ('bar content', ''), 'label': 'bar'}
+    >>> obj.data['one_liner']
+    'the one liner value'
+
+
+Testing inheritance
+-------------------
+
+Create some dummy source file objects and check their data dictionaries::
+
+    >>> from pprint import pprint
+    >>> parent = jst.SourceFile("""
+    ... 
+    ...     /** api: prop1 = parent prop1 value */
+    ... 
+    ...     /** api: prop2 = parent prop2 value */
+    ... 
+    ...     /** api: d[key1] = parent d['key1'] value */
+    ...     
+    ...     /** api: d[key2] = parent d['key2'] value */
+    ... 
+    ... """)    
+    >>> child = jst.SourceFile("""
+    ... 
+    ...     /** api: prop2 = child prop2 value */
+    ... 
+    ...     /** api: d[key2] = child d['key2'] value */
+    ... 
+    ...     /** api: d[key3] = child d['key3'] value */
+    ... 
+    ... """)
+    >>> pprint(parent.data)
+    {'d': {'key1': "parent d['key1'] value", 'key2': "parent d['key2'] value"},
+     'prop1': 'parent prop1 value',
+     'prop2': 'parent prop2 value'}
+    >>> pprint(child.data)
+    {'d': {'key2': "child d['key2'] value", 'key3': "child d['key3'] value"},
+     'prop2': 'child prop2 value'}
+    
+Now, extend the child with data from the parent::
+
+    >>> child.inherit([parent])
+    >>> pprint(child.data)
+    {'_parents': [{'d': {'key1': "parent d['key1'] value",
+                         'key2': "parent d['key2'] value"},
+                   'prop1': 'parent prop1 value',
+                   'prop2': 'parent prop2 value'}],
+     'd': {'key1': "parent d['key1'] value",
+           'key2': "child d['key2'] value",
+           'key3': "child d['key3'] value"},
+     'prop1': 'parent prop1 value',
+     'prop2': 'child prop2 value'}
+
+
+Test out comments with different markers
+----------------------------------------
+
+By default, the parser looks for comments marked with api::
+
+    >>> obj = jst.SourceFile("""
+    ... /** api: foo = bar */
+    ... """)
+    >>> obj = jst.SourceFile("/** api: foo = bar */")
+    >>> len(obj.comments)
+    1
+    >>> obj = jst.SourceFile("/** custom: foo = bar */")
+    >>> len(obj.comments)
+    0
+    
+You can choose a custom marker by setting the 'marker' value in the options
+dict::
+
+    >>> obj = jst.SourceFile("/** custom: foo = bar */", {'marker': 'custom'})
+    >>> len(obj.comments)
+    1
+    >>> obj.data
+    {'foo': 'bar'}
+
+The 'marker' value is used as part of a regular expression, so you can search
+for multiple markers::
+
+    >>> code = """
+    ... /** good: comment[] = foo */
+    ... /** also_good: comment[] = bar */
+    ... /** no_good: comment[] = baz */
+    ... """
+    >>> jst.SourceFile(code, {'marker': 'good'}).data
+    {'comment': ['foo']}
+    >>> jst.SourceFile(code, {'marker': '(good|also_good)'}).data
+    {'comment': ['foo', 'bar']}
+

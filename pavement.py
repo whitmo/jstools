@@ -17,10 +17,10 @@ from ConfigParser import ConfigParser
 from paver import setuputils
 
 setuputils.install_distutils_tasks()
-version = '0.1.1a'
+version = '0.1.5'
 
 try:
-    description = ''.join([x for x in open('README.txt')])
+    description = ''.join([x for x in open('README.rst')])
 except IOError:
     description = ""
 
@@ -49,19 +49,27 @@ setup(
     [console_scripts]
     jsbuild=jstools.build:build
     jsmin = jstools.jsmin:minify
+    jst = jstools.jst:run
     [jstools.jsbuild_command]
     default=jstools.build:default_merge
     [jstools.compressor]
     default=jstools.jsmin:compressor_plugin
     yui=jstools.yuicompressor:compress [yuicompressor]
+    [jstools.docs]
+    default=jstools.jst [sphinx]
+    [paste.app_factory]
+    main=jstools.proxy:make_proxy [proxy]
     """,
-    extras_require=dict(yuicompressor="Paver"),
+    extras_require=dict(yuicompressor=["Paver"],
+                        sphinx=['Jinja2'],
+                        proxy=['WSGIProxy']),
+    
     test_suite='nose.collector',
     tests_require=['nose']
     )
 
 options(virtualenv=Bunch(script_name="install_jstools",
-                         packages_to_install=[],
+                         packages_to_install=['nose', 'setuptools_git'], # packages for testing and packaging
                          paver_command_line="install_jstools"
                          ),
         yui_compressor=Bunch(compressor_version = "2.4.2",

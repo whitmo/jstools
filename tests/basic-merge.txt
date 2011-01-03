@@ -56,7 +56,7 @@ Now let's test the output::
        ====================================================================== */...
     var filename='core/api.js';
 
-    >>> import re; checker = re.compile(r"core/api.js", re.MULTILINE)
+    >>> import re; checker = re.compile(r"'core/api.js'", re.MULTILINE)
     >>> len(checker.findall(output))
     1
 

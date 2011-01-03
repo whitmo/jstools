@@ -1,3 +1,21 @@
+2009-06-17  whit  <whit@opengeo.org>
+
+	* Add implicit file inclusion to merge.py.  In a config defines no
+	"include", "first", or "last", automatically added every file
+	found in the directory not explicitly excluded.
+
+2009-06-15  whit  <whit@opengeo.org>
+
+	* Merge Eric Lemoine's Python 2.4 compatibility fix
+
+2009-06-15  whit  <whit@opengeo.org>
+
+	* Hooked up streamhandler to reenable -v flag
+
+2009-04-29  whit  <whit@opengeo.org>
+
+	* Add docparser for use with sphinx (from tschaub)
+
 2009-04-23  whit  <whit@opengeo.org>
 
 	* add yuicompressor support
