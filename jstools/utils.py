@@ -105,11 +105,3 @@ def retrieve_config(section=None, strict=False):
     if (user / fn).exists():
         return section_or_parser(user / fn)
 
-    
-
-
-
-
-            
-
-    
