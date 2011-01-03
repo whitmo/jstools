@@ -33,7 +33,6 @@ class Merger(ConfigParser):
         ConfigParser.__init__(self, defaults)
         self.output_dir = output_dir
         self.printer = printer
-        self.reverse_included = dict()
         
     @classmethod
     def from_fn(cls, fn, output_dir, defaults=None, printer=logger.info):
