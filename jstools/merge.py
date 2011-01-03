@@ -28,6 +28,14 @@ class MissingImport(Exception):
     """Exception raised when a listed import is not found in the lib."""
 
 
+class Exclude(object):
+    def __init__(self, pattern):
+        self.pattern = pattern
+
+    def __eq__(self, other):
+        return re.match(self.pattern, other) is not None
+
+
 class Merger(ConfigParser):
     def __init__(self, output_dir, defaults=None, printer=logger.info):
         ConfigParser.__init__(self, defaults)
@@ -61,7 +69,7 @@ class Merger(ConfigParser):
 
         # assemble all files in source directory according to config
         include = cfg.get('include', tuple())
-        exclude = cfg['exclude']
+        exclude = [Exclude(e) for e in cfg['exclude']]
         all_inc = cfg['first'] + cfg['include'] + cfg['last']
         files = {}
         implicit = False
@@ -86,7 +94,7 @@ class Merger(ConfigParser):
             complete = True
             for filepath, info in files.items():
                 for path in info.include + info.requires:
-                    if path not in cfg['exclude'] and not files.has_key(path):
+                    if path not in exclude and not files.has_key(path):
                         complete = False
                         for sourcedir in sourcedirs:
                             if os.path.exists(os.path.join(sourcedir, path)):
@@ -118,7 +126,7 @@ class Merger(ConfigParser):
         ## Make sure all imports are in files dictionary
         for part in parts:
             for fp in cfg[part]:
-                if not fp in cfg['exclude'] and not files.has_key(fp):
+                if not fp in exclude and not files.has_key(fp):
                     raise MissingImport("File from '%s' not found: %s" % (part, fp))
         
         ## Header inserted at the start of each file in the output
