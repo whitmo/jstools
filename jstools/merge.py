@@ -29,11 +29,17 @@ class MissingImport(Exception):
 
 
 class Exclude(object):
-    def __init__(self, pattern):
-        self.pattern = pattern
+    def __init__(self, exclude):
+        self.exclude = exclude
+        self.pattern = None
+        if exclude.startswith('r:'):
+            self.pattern = re.compile(exclude[2:])
 
     def __eq__(self, other):
-        return re.match(self.pattern, other) is not None
+        if self.pattern is None:
+            return self.exclude == other
+        else:
+            return self.pattern.match(other) is not None
 
 
 class Merger(ConfigParser):
