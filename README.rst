@@ -137,7 +137,9 @@ A section is formatted in the following fashion::
      core/api.js
 
  exclude=
-      3rd/logger.js
+      3rd/exclude/file.js
+      3rd/exclude/dir
+      r:3rd/exclude/.*debug.js
  #...
 
 
@@ -147,6 +149,9 @@ section will be forced to load *after* all the other files (in the
 order listed).
 
 The files list in the `exclude` section will not be imported.
+An exclude entry can be a relative path to a file or directory, or can be
+a python regular expression starting with pattern `r:`, see python `re` syntax:
+http://docs.python.org/library/re.html#regular-expression-syntax
 
 The configuration allows for the interpolation of variables defined in
 the config file.  '%(resource-dir)s' may be subsituted for the value
