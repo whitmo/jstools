@@ -1,7 +1,6 @@
 from wsgiproxy.app import WSGIProxyApp
 from cgi import parse_qs
 
-from urlparse import 
 import urlparse
 import logging
 import functools
