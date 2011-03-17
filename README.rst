@@ -250,7 +250,7 @@ Whit Morriss (whit at opengeo.org) repackaged these scripts as jstools
 and Tim Schaub (tschaub at opengeo.org) did extensive reworking of tsort.
 
 
-.. [#] See 'virtualenv <http://pypi.python.org/pypi/virtualenv>'_ for
+.. [#] See `virtualenv <http://pypi.python.org/pypi/virtualenv>`_ for
        more information about the python environment.  You may activate
        and deactivate this environment to add the installed scripts to
        your path, localize python package installs and other niceties
