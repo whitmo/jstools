@@ -37,7 +37,12 @@ class Exclude(object):
 
     def __eq__(self, other):
         if self.pattern is None:
-            return self.exclude == other
+            if self.exclude == other:
+                return True
+            else:
+                # test other assuming self.exclude is a directory
+                return other.startswith(self.exclude + \
+                        ('' if self.exclude[-1]=='/' else '/'))
         else:
             return self.pattern.match(other) is not None
 
