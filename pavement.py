@@ -36,7 +36,7 @@ setup(
                  ], 
     keywords='javascript',
     author='assorted',
-    author_email='dev@geoext.org',
+    author_email='jstools@googlegroups.com',
     url='https://github.com/camptocamp/jstools',
     license='various/BSDish',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
