@@ -48,13 +48,13 @@ class Exclude(object):
 
 
 class Merger(ConfigParser):
-    def __init__(self, output_dir, defaults=None, printer=logger.info):
+    def __init__(self, output_dir, defaults=None, printer=logger):
         ConfigParser.__init__(self, defaults)
         self.output_dir = output_dir
         self.printer = printer
         
     @classmethod
-    def from_fn(cls, fn, output_dir, defaults=None, printer=logger.info):
+    def from_fn(cls, fn, output_dir, defaults=None, printer=logger):
         """Load up a list of config filenames in our merger"""
         merger = cls(output_dir, defaults=defaults, printer=printer)
         if isinstance(fn, basestring):
@@ -64,14 +64,14 @@ class Merger(ConfigParser):
         return merger
 
     @classmethod
-    def from_resource(cls, resource_name, output_dir, requirement=REQ, defaults=None, printer=logger.info):
+    def from_resource(cls, resource_name, output_dir, requirement=REQ, defaults=None, printer=logger):
         conf = pkg_resources.resource_stream(requirement, resource_name)
         merger = cls(output_dir, defaults=defaults, printer=printer)
         merger.readfp(conf)
         return merger
 
     def make_sourcefile(self, sourcedir, filepath, exclude):
-        self.printer("Importing: %s" % filepath)
+        self.printer.debug("Importing: %s" % filepath)
         return SourceFile(sourcedir, filepath, exclude)
     
     def merge(self, cfg, depmap=None):
@@ -121,11 +121,11 @@ class Merger(ConfigParser):
 
         
         # get tuple of files ordered by dependency
-        self.printer("Sorting dependencies.")
+        self.printer.debug("Sorting dependencies.")
         order = [x for x in tsort.sort(dependencies)]
 
         # move forced first and last files to the required position
-        self.printer("Re-ordering files.")
+        self.printer.debug("Re-ordering files.")
         order = cfg['first'] + [item
                      for item in order
                      if ((item not in cfg['first']) and
@@ -147,14 +147,14 @@ class Merger(ConfigParser):
         result = []
         for fp in order:
             f = files[fp]
-            self.printer("Exporting: " + f.filepath)
+            self.printer.debug("Exporting: " + f.filepath)
             result.append(HEADER % f.filepath)
             source = f.source
             result.append(source)
             if not source.endswith("\n"):
                 result.append("\n")
 
-        self.printer("\nTotal files merged: %d " % len(files))
+        self.printer.debug("\nTotal files merged: %d " % len(files))
         merged = "".join(result)
         if cfg['closure']:
             merged = '(function(){%s})();' % merged
@@ -178,7 +178,7 @@ class Merger(ConfigParser):
         return "\n".join(x for x in merged.split('\n') if not DEP_LINE.match(x))
 
     def compress(self, merged, plugin="default", cfg=None):
-        self.printer("Compressing with %s" %plugin)
+        self.printer.debug("Compressing with %s" %plugin)
         ep_map = pkg_resources.get_entry_map(DIST, "jstools.compressor")
         args = None
         func = ep_map.get(plugin).load()
@@ -186,7 +186,7 @@ class Merger(ConfigParser):
 
     def do_section(self, section, cfg):
         header = "Building %s" % section
-        self.printer("%s\n%s" % (header, "-" * len(header)))
+        self.printer.debug("%s\n%s" % (header, "-" * len(header)))
         merged = self.merge(cfg)
         if cfg.has_key('output'):
             outputfilename = cfg['output']
@@ -247,14 +247,14 @@ class Merger(ConfigParser):
 
         merged = catted.getvalue()
         if not uncompressed:
-            self.printer("Compressing %s" %outputfilename)
+            self.printer.debug("Compressing %s" %outputfilename)
             merged = self.compress(merged, compressor, self)
         elif strip_deps:
             merged = self.strip_deps(merged)
         merged_lic = license.getvalue()
         merged = "%s\n%s" %(merged_lic, merged)
 
-        self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
+        self.printer.info("Writing to %s (%d KB)" % (outputfilename, int(len(merged) / 1024)))
         sfb = file(outputfilename, "w").write(merged)
         newfiles = [outputfilename]
             
@@ -269,13 +269,13 @@ class Merger(ConfigParser):
 
             outputfilename, merged = self.do_section(section, cfg)
             if not uncompressed:
-                self.printer("Compressing %s" %outputfilename)
+                self.printer.debug("Compressing %s" %outputfilename)
                 merged = self.compress(merged, compressor, self)
             elif strip_deps:
                 merged = self.strip_deps(merged)
-            self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
+            self.printer.info("Writing to %s (%d KB)" % (outputfilename, int(len(merged) / 1024)))
             if license:
-                self.printer("Adding license file: %s" %cfg['license'])
+                self.printer.debug("Adding license file: %s" %cfg['license'])
                 merged = "\n".join((license, merged))
             file(outputfilename, "w").write(merged)
                 

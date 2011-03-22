@@ -1,3 +1,6 @@
+2011-03-22 fredj  <frederic.junod@camptocamp.com>
+        * refactor the python loggers.
+
 2011-11-17  bbinet  <bruno.binet@camptocamp.com>
 
 	* Add support for directories exclusion

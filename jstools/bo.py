@@ -26,7 +26,7 @@ class BuildJS(object):
         self.merge = merge.Merger.from_fn(self.options.get('config'),
                                           output_dir=self.options.get('output-dir'),
                                           defaults=self.defaults,
-                                          printer=self.buildout._logger.info) 
+                                          printer=self.buildout._logger)
         files = self.merge.run(uncompressed=not self.compress, single=self.only)
         return files
 
