@@ -29,3 +29,5 @@ class BuildJS(object):
                                           printer=self.buildout._logger.info) 
         files = self.merge.run(uncompressed=not self.compress, single=self.only)
         return files
+
+    update = install
