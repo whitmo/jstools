@@ -17,7 +17,7 @@ class DepMap(ConfigParser):
     template = dict(require='// @requires %s\n',
                      include='// @include %s\n')
     
-    def __init__(self, defaults=None, printer=logger.info):
+    def __init__(self, defaults=None, printer=logger):
         ConfigParser.__init__(self, defaults)
         self.printer = printer
 
@@ -26,14 +26,14 @@ class DepMap(ConfigParser):
         return utils.SectionMap(self, 'alias')
         
     @classmethod
-    def from_resource(cls, resource_name, dist=DIST, defaults=None, printer=logger.info):
+    def from_resource(cls, resource_name, dist=DIST, defaults=None, printer=logger):
         conf = pkg_resources.resource_stream(dist, resource_name)
         dmap = cls(defaults=defaults, printer=printer)
         dmap.readfp(conf)
         return dmap
 
     @classmethod
-    def from_path(cls, path, defaults=None, printer=logger.info):
+    def from_path(cls, path, defaults=None, printer=logger):
         dmap = cls(defaults=defaults, printer=printer)
         if isinstance(path, basestring):
             path = path,
