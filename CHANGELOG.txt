@@ -1,3 +1,6 @@
+2011-03-30 bbinet  <bruno.binet@camptocamp.com>
+        * fix trailing space bug in @requires/@include statements
+
 2011-03-22 fredj  <frederic.junod@camptocamp.com>
         * refactor the python loggers.
 
