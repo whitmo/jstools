@@ -320,7 +320,7 @@ class SourceFile(object):
         """
         req = getattr(self, '_requires', None)
         if req is _marker:
-            self._requires = [x for x in RE_REQUIRE.findall(self.source)\
+            self._requires = [x.strip() for x in RE_REQUIRE.findall(self.source)\
                               if x not in self.exclude]
         return self._requires
 
@@ -331,7 +331,7 @@ class SourceFile(object):
         """
         req = getattr(self, '_include', None)
         if req is _marker:
-            self._include = [x for x in RE_INCLUDE.findall(self.source) \
+            self._include = [x.strip() for x in RE_INCLUDE.findall(self.source) \
                              if x not in self.exclude]
                                    
         return self._include
