@@ -27,6 +27,11 @@ default_parser.add_option('-v', '--verbose',
                   action="store_true",
                   dest="verbose",
                   default=False)
+default_parser.add_option('-l', '--list-only',
+                  help="Only list javascript files that would have been merged",
+                  action="store_true",
+                  dest="list_only",
+                  default=False)
 default_parser.add_option('-o', '--output',
                   help="Output directory",
                   action="store",
@@ -71,7 +76,8 @@ def default_merge(args=None, options=None, parser=None):
                             printer=logger)
     out = merger.run(uncompressed=options.uncompress,
                      single=options.single_file,
-                     compressor=options.compressor)
+                     compressor=options.compressor,
+                     list_only=options.list_only)
     logger.info("Done:")
     logger.info("\n".join(out))
 

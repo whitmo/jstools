@@ -74,7 +74,7 @@ class Merger(ConfigParser):
         self.printer.debug("Importing: %s" % filepath)
         return SourceFile(sourcedir, filepath, exclude)
     
-    def merge(self, cfg, depmap=None):
+    def extract_deps(self, cfg, depmap=None):
         #@@ this function needs to be decomposed into smaller testable bits
         sourcedirs = cfg['root']
 
@@ -139,14 +139,21 @@ class Merger(ConfigParser):
             for fp in cfg[part]:
                 if not fp in exclude and not files.has_key(fp):
                     raise MissingImport("File from '%s' not found: %s" % (part, fp))
-        
-        ## Header inserted at the start of each file in the output
-        HEADER = "/* " + "=" * 70 + "\n    %s\n" + "   " + "=" * 70 + " */\n\n"
 
         ## Output the files in the determined order
         result = []
         for fp in order:
-            f = files[fp]
+            result.append(files[fp])
+
+        return result
+
+
+    def merge(self, cfg, depmap=None):
+        ## Header inserted at the start of each file in the output
+        HEADER = "/* " + "=" * 70 + "\n    %s\n" + "   " + "=" * 70 + " */\n\n"
+        result = []
+        files = self.extract_deps(cfg, depmap)
+        for f in files:
             self.printer.debug("Exporting: " + f.filepath)
             result.append(HEADER % f.filepath)
             source = f.source
@@ -282,12 +289,21 @@ class Merger(ConfigParser):
             newfiles.append(outputfilename)
         return newfiles
 
-    def run(self, uncompressed=False, single=None, strip_deps=True, concatenate=None, compressor="default"):
+    def list_run(self, sections):
+        newfiles = []
+        for section in sections:
+            cfg = self.make_cfg(section)
+            newfiles += [f.fullpath for f in self.extract_deps(cfg)]
+        return newfiles
+
+    def run(self, uncompressed=False, single=None, strip_deps=True, concatenate=None, compressor="default", list_only=False):
         sections = self.js_sections()
         if single is not None:
             assert single in sections, ValueError("%s not in %s" %(single, sections))
             sections = [single]
             
+        if list_only:
+            return self.list_run(sections)
         if concatenate:
             return self.cat_run(concatenate, sections, uncompressed, strip_deps, compressor)
         else:
