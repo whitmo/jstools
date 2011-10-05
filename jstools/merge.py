@@ -306,11 +306,21 @@ class SourceFile(object):
         """
         """
         self.filepath = filepath
+        self.fullpath = os.path.join(sourcedir, filepath)
         self.exclude = exclude
-        self.source = open(os.path.join(sourcedir, filepath), "U").read()
+        self._source = None
         self._requires = _marker
         self._include = _marker
         self.depmap = depmap
+
+    @property
+    def source(self):
+        """
+        Provides lazy reading of the source file
+        """
+        if self._source is None:
+            self._source = open(self.fullpath, "U").read()
+        return self._source
 
     @property
     def requires(self):
