@@ -76,6 +76,7 @@ def default_merge(args=None, options=None, parser=None):
                             printer=logger)
     out = merger.run(uncompressed=options.uncompress,
                      single=options.single_file,
+                     concatenate=options.concat,
                      compressor=options.compressor,
                      list_only=options.list_only)
     logger.info("Done:")

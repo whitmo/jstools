@@ -246,10 +246,11 @@ class Merger(ConfigParser):
         seen = []
         for name in newfiles:
             print >> catted, cat[name]
-            licout = lic[name]
-            if licout not in seen: #slow?
-                print >> license, licout
-                seen.append(licout)
+            if name in lic:
+                licout = lic[name]
+                if licout not in seen: #slow?
+                    print >> license, licout
+                    seen.append(licout)
 
 
         merged = catted.getvalue()
