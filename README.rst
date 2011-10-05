@@ -96,6 +96,9 @@ Options:
   -v, --verbose
       print more info
 
+  -l, --list-only
+       Only list javascript files that would have been merged
+
   -o OUTPUT_DIR, --output=OUTPUT_DIR
      Output directory for files jsbuild creates
 
