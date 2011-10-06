@@ -53,7 +53,6 @@ class Merger(ConfigParser):
         self.output_dir = output_dir
         self.root_dir = root_dir
         self.printer = printer
-        print self.root_dir
         
     @classmethod
     def from_fn(cls, fn, output_dir=None, root_dir=None, defaults=None, printer=logger):
