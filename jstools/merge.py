@@ -48,13 +48,13 @@ class Exclude(object):
 
 
 class Merger(ConfigParser):
-    def __init__(self, output_dir, defaults=None, printer=logger):
+    def __init__(self, output_dir=None, defaults=None, printer=logger):
         ConfigParser.__init__(self, defaults)
         self.output_dir = output_dir
         self.printer = printer
         
     @classmethod
-    def from_fn(cls, fn, output_dir, defaults=None, printer=logger):
+    def from_fn(cls, fn, output_dir=None, defaults=None, printer=logger):
         """Load up a list of config filenames in our merger"""
         merger = cls(output_dir, defaults=defaults, printer=printer)
         if isinstance(fn, basestring):
@@ -64,7 +64,7 @@ class Merger(ConfigParser):
         return merger
 
     @classmethod
-    def from_resource(cls, resource_name, output_dir, requirement=REQ, defaults=None, printer=logger):
+    def from_resource(cls, resource_name, output_dir=None, requirement=REQ, defaults=None, printer=logger):
         conf = pkg_resources.resource_stream(requirement, resource_name)
         merger = cls(output_dir, defaults=defaults, printer=printer)
         merger.readfp(conf)
