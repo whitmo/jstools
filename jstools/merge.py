@@ -48,15 +48,17 @@ class Exclude(object):
 
 
 class Merger(ConfigParser):
-    def __init__(self, output_dir, defaults=None, printer=logger):
+    def __init__(self, output_dir=None, root_dir=None, defaults=None, printer=logger):
         ConfigParser.__init__(self, defaults)
         self.output_dir = output_dir
+        self.root_dir = root_dir
         self.printer = printer
+        print self.root_dir
         
     @classmethod
-    def from_fn(cls, fn, output_dir, defaults=None, printer=logger):
+    def from_fn(cls, fn, output_dir=None, root_dir=None, defaults=None, printer=logger):
         """Load up a list of config filenames in our merger"""
-        merger = cls(output_dir, defaults=defaults, printer=printer)
+        merger = cls(output_dir, root_dir, defaults=defaults, printer=printer)
         if isinstance(fn, basestring):
             fn = fn,
         fns = merger.read(fn)
@@ -64,15 +66,15 @@ class Merger(ConfigParser):
         return merger
 
     @classmethod
-    def from_resource(cls, resource_name, output_dir, requirement=REQ, defaults=None, printer=logger):
+    def from_resource(cls, resource_name, output_dir=None, root_dir=None, requirement=REQ, defaults=None, printer=logger):
         conf = pkg_resources.resource_stream(requirement, resource_name)
-        merger = cls(output_dir, defaults=defaults, printer=printer)
+        merger = cls(output_dir, root_dir, defaults=defaults, printer=printer)
         merger.readfp(conf)
         return merger
 
     def make_sourcefile(self, sourcedir, filepath, exclude):
         self.printer.debug("Importing: %s" % filepath)
-        return SourceFile(sourcedir, filepath, exclude)
+        return SourceFile(self.root_dir, sourcedir, filepath, exclude)
     
     def extract_deps(self, cfg, depmap=None):
         #@@ this function needs to be decomposed into smaller testable bits
@@ -90,7 +92,7 @@ class Merger(ConfigParser):
 
         for sourcedir in sourcedirs:
             newfiles = []
-            for filepath in jsfiles_for_dir(sourcedir):
+            for filepath in jsfiles_for_dir(os.path.join(self.root_dir, sourcedir)):
                 fitem = filepath, srcfile = filepath, self.make_sourcefile(sourcedir, filepath, exclude),
                 if implicit and not filepath in exclude:
                     all_inc.append(filepath)
@@ -108,7 +110,7 @@ class Merger(ConfigParser):
                     if path not in exclude and not files.has_key(path):
                         complete = False
                         for sourcedir in sourcedirs:
-                            if os.path.exists(os.path.join(sourcedir, path)):
+                            if os.path.exists(os.path.join(self.root_dir, sourcedir, path)):
                                 files[path] = self.make_sourcefile(sourcedir, path, exclude)
                                 break
                         else:
@@ -319,11 +321,12 @@ class SourceFile(object):
     -- use depmap if given
     """
 
-    def __init__(self, sourcedir, filepath, exclude, depmap=None):
+    def __init__(self, root_dir, sourcedir, filepath, exclude, depmap=None):
         """
         """
         self.filepath = filepath
         self.fullpath = os.path.join(sourcedir, filepath)
+        self.abspath = os.path.join(root_dir, self.fullpath)
         self.exclude = exclude
         self._source = None
         self._requires = _marker
@@ -336,7 +339,7 @@ class SourceFile(object):
         Provides lazy reading of the source file
         """
         if self._source is None:
-            self._source = open(self.fullpath, "U").read()
+            self._source = open(self.abspath, "U").read()
         return self._source
 
     @property

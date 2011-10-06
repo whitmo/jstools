@@ -33,7 +33,7 @@ default_parser.add_option('-l', '--list-only',
                   dest="list_only",
                   default=False)
 default_parser.add_option('-o', '--output',
-                  help="Output directory",
+                  help="Output directory (defaults to current directory)",
                   action="store",
                   dest="output_dir",
                   default=curdir)
@@ -41,6 +41,11 @@ default_parser.add_option('-r', '--resource',
                   help="resource base directory (for interpolation)",
                   action="store",
                   dest="resource_dir",
+                  default=curdir)
+default_parser.add_option('-b', '--base-dir',
+                  help="base directory for root dirs (defaults to current directory)",
+                  action="store",
+                  dest="root_dir",
                   default=curdir)
 default_parser.add_option('-j', '--just',
                   help="Only create file for this section",
@@ -72,6 +77,7 @@ def default_merge(args=None, options=None, parser=None):
         parser.error("You must provide at least one config filename")
     merger = Merger.from_fn(filenames,
                             output_dir=options.output_dir,
+                            root_dir=options.root_dir,
                             defaults={'resource-dir':options.resource_dir},
                             printer=logger)
     out = merger.run(uncompressed=options.uncompress,

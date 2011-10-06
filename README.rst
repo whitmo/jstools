@@ -100,10 +100,13 @@ Options:
        Only list javascript files that would have been merged
 
   -o OUTPUT_DIR, --output=OUTPUT_DIR
-     Output directory for files jsbuild creates
+     Output directory for files jsbuild creates (defaults to current directory)
 
   -r RESOURCE_DIR, --resource=RESOURCE_DIR
      base directory for resource files (for interpolation)
+
+  -b ROOT_DIR, --base-dir=ROOT_DIR
+     base directory for root dirs (defaults to current directory)
 
   -j SINGLE_FILE, --just=SINGLE_FILE
      *New in 1.1*: Only create file for this section
