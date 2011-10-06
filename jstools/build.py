@@ -33,7 +33,7 @@ default_parser.add_option('-l', '--list-only',
                   dest="list_only",
                   default=False)
 default_parser.add_option('-o', '--output',
-                  help="Output directory",
+                  help="Output directory (defaults to current directory)",
                   action="store",
                   dest="output_dir",
                   default=curdir)
@@ -43,7 +43,7 @@ default_parser.add_option('-r', '--resource',
                   dest="resource_dir",
                   default=curdir)
 default_parser.add_option('-b', '--base-dir',
-                  help="base directory (from which to look for root dirs)",
+                  help="base directory for root dirs (defaults to current directory)",
                   action="store",
                   dest="root_dir",
                   default=curdir)
