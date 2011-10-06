@@ -19,7 +19,7 @@ Variables
 
  * compress -- True or False, minify output files
 
- * config -- path to jsbuild config file
+ * config -- path(s) to jsbuild config file(s)
 
  * resource-dir -- not required, used for interpolation of jsbuild config
 
@@ -37,7 +37,8 @@ Basic example::
 [build-js]
 recipe=JSTools:buildjs
 resource-dir=${buildout:develop-dir}/${client:folder-name}
-config=${build-js:resource-dir}/all.cfg 
+config=${build-js:resource-dir}/all.cfg
+       ${build-js:resource-dir}/app.cfg
 output-dir=${build-js:resource-dir}/script
 compress=True
 ...
@@ -49,7 +50,8 @@ jsbuild config file to build, 'output' defines the file created.
 [build-js]
 recipe=JSTools:buildjs
 resource-dir=${buildout:develop-dir}/${client:folder-name}
-config=${build-js:resource-dir}/all.cfg 
+config=${build-js:resource-dir}/all.cfg
+       ${build-js:resource-dir}/app.cfg
 output-dir=${build-js:resource-dir}/script
 only=OpenLayers.js
 output=${build-js:output-dir}/OL-uncompressed.js
