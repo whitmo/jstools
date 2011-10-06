@@ -23,6 +23,8 @@ Variables
 
  * resource-dir -- not required, used for interpolation of jsbuild config
 
+ * base-dir -- not required, the base directory of root dirs
+
  * only -- output concatenated file for only this section of the 'config'
 
  * output -- (for use with only) write file to this name
