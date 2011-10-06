@@ -1,5 +1,9 @@
 2011-03-30 bbinet  <bruno.binet@camptocamp.com>
 
+    * add --base-dir option which sets a base directory for root dirs
+
+2011-03-30 bbinet  <bruno.binet@camptocamp.com>
+
     * add support for a --list-only option which outputs the list
       javascript files that would have been merged
     * activate the concatenate feature by passing the concat option to
