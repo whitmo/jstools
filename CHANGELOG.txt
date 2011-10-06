@@ -1,8 +1,12 @@
-2011-03-30 bbinet  <bruno.binet@camptocamp.com>
+2011-10-06 elemoine  <eric.lemoine@camptocamp.com>
+
+    * make it possible to supply multiple file paths in the buildout "config" var
+
+2011-10-06 bbinet  <bruno.binet@camptocamp.com>
 
     * add --base-dir option which sets a base directory for root dirs
 
-2011-03-30 bbinet  <bruno.binet@camptocamp.com>
+2011-10-06 bbinet  <bruno.binet@camptocamp.com>
 
     * add support for a --list-only option which outputs the list
       javascript files that would have been merged
