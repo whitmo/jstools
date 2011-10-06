@@ -23,7 +23,7 @@ class BuildJS(object):
 
     
     def install(self):
-        self.merge = merge.Merger.from_fn(self.options.get('config'),
+        self.merge = merge.Merger.from_fn(tuple(self.options.get('config').split()),
                                           output_dir=self.options.get('output-dir'),
                                           root_dir=self.options.get('base-dir'),
                                           defaults=self.defaults,
