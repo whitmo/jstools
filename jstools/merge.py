@@ -14,9 +14,9 @@ import pkg_resources
 import re
 
 
-DEP_LINE = re.compile("^// @[include|requires]")
+DEP_LINE = re.compile("^// @[include|requires?]")
 RE_INCLUDE = re.compile("@include (.*)\n")
-RE_REQUIRE = re.compile("@requires (.*)\n")
+RE_REQUIRE = re.compile("@requires? (.*)\n")
 SUFFIX_JAVASCRIPT = ".js"
 
 _marker = object()
