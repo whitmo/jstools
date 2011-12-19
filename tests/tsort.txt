@@ -17,7 +17,7 @@ Sort an example with a circular dependency (order forced):
     >>> dependencies = dict(money=["opportunity", "education"], education=["money"], opportunity=["luck"], luck=[])
     >>> sort(dependencies)
     ('luck', 'opportunity', 'education', 'money')
-    
+
 Sort an example with a missing dependency (MissingDependency raised):
 
     >>> dependencies = dict(vegas=["gambling"], gambling=["luck"])

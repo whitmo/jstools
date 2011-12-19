@@ -30,7 +30,7 @@ Set the root directory and license::
     >>> merger.set('Output.js', 'license', license_path)
 
 Do merge::
-    
+
     >>> out = merger.run(uncompressed=True, single='Output.js')
 
 Now let's test the output::
