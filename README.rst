@@ -128,7 +128,7 @@ A section is formatted in the following fashion::
 
  license=path/to/license/for/these/libs
 
- first=        
+ first=
       3rd/prototype.js
       core/application.js
       core/params.js
@@ -152,7 +152,7 @@ The configuration allows for the interpolation of variables defined in
 the config file.  '%(resource-dir)s' may be subsituted for the value
 of the -r flag.
 
-Lines commented using '#' will be ignored. 
+Lines commented using '#' will be ignored.
 
 If an `include` section is defined, jsbuild will only build listed
 files from this section and theirs dependencies, else all files from
@@ -163,10 +163,10 @@ Dependency Syntax
 ~~~~~~~~~~~~~~~~~
 
 File merging uses cues inside the candidate javascript files to
-determine dependencies.  Two types of dependencies are specified 
+determine dependencies.  Two types of dependencies are specified
 with two different comment formats within source files.
 
-To specify that a target files must be included before a given 
+To specify that a target files must be included before a given
 source file, include a comment of the following format:
 
      // @requires <file path>
@@ -176,7 +176,7 @@ source file, include a comment of the following format:
     // @requires Geo/DataSource.js
 
 To specify that a target file must be included at any place
-in the merged build - before or after a given source file - 
+in the merged build - before or after a given source file -
 include a comment in the source file of the following format:
 
     // @include <file path>
@@ -185,7 +185,7 @@ include a comment in the source file of the following format:
 
     // @include Geo/DataSource.js
 
-Note that the "exclude" list in a configuration file will 
+Note that the "exclude" list in a configuration file will
 override dependencies specified by the @requires and @include
 comment directives described above.
 
@@ -224,16 +224,16 @@ Run Tests
 =========
 
  in the src dir in an environment w/ yuicomp installed::
-  
+
   $ easy_install nose
   $ paver get_yuicomp
-  $ cd test 
+  $ cd test
   $ nosetests {options}
 
  or most simply::
 
   $ python setup.py test
- 
+
 
 Credits
 =======

@@ -23,7 +23,7 @@ Coverage
 
 could be improved::
 
-* jstools.jsmin 
+* jstools.jsmin
 
 * jstools.deps
 

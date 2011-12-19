@@ -20,7 +20,7 @@ Priority
 
  * optional printout of logging for verbose flag
 
- 
+
 
 Blue Sky
 ========
@@ -30,5 +30,5 @@ Blue Sky
  * server with file watching, automatic compression on serve
 
  * svn/git checkout and build
- 
+
 
