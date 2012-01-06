@@ -32,23 +32,6 @@ def arg_parser(optparser):
         return caller
     return wrapper
 
-
-def printer(verbosity):
-    _print = lambda x: None
-    logger = logging.getLogger('jstools')
-    logger.setLevel(logging.DEBUG)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.DEBUG)
-    ch.setFormatter(logging.Formatter("%(message)s"))
-    logger.addHandler(ch)
-    _print = logger.info
-    def _printer(txt, threshold=1):
-        if int(verbosity) >= threshold:
-            _print(txt)
-    return _printer
-
-
-
 class SectionMap(DictMixin):
     def __init__(self, cp, section):
         if not cp.has_section(section):
@@ -105,11 +88,3 @@ def retrieve_config(section=None, strict=False):
     if (user / fn).exists():
         return section_or_parser(user / fn)
 
-    
-
-
-
-
-            
-
-    

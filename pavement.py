@@ -17,7 +17,7 @@ from ConfigParser import ConfigParser
 from paver import setuputils
 
 setuputils.install_distutils_tasks()
-version = '0.1.5'
+version = '0.5'
 
 try:
     description = ''.join([x for x in open('README.rst')])
@@ -36,8 +36,8 @@ setup(
                  ], 
     keywords='javascript',
     author='assorted',
-    author_email='info@opengeo.org',
-    url='http://projects.opengeo.org/jstools',
+    author_email='jstools@googlegroups.com',
+    url='https://github.com/camptocamp/jstools',
     license='various/BSDish',
     packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
     include_package_data=True,

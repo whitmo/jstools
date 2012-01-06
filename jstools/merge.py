@@ -14,9 +14,9 @@ import pkg_resources
 import re
 
 
-DEP_LINE = re.compile("^// @[include|requires]")
+DEP_LINE = re.compile("^// @[include|requires?]")
 RE_INCLUDE = re.compile("@include (.*)\n")
-RE_REQUIRE = re.compile("@requires (.*)\n")
+RE_REQUIRE = re.compile("@requires? (.*)\n")
 SUFFIX_JAVASCRIPT = ".js"
 
 _marker = object()
@@ -28,17 +28,36 @@ class MissingImport(Exception):
     """Exception raised when a listed import is not found in the lib."""
 
 
+class Exclude(object):
+    def __init__(self, exclude):
+        self.exclude = exclude
+        self.pattern = None
+        if exclude.startswith('r:'):
+            self.pattern = re.compile(exclude[2:])
+
+    def __eq__(self, other):
+        if self.pattern is None:
+            if self.exclude == other:
+                return True
+            else:
+                # test other assuming self.exclude is a directory
+                return other.startswith(self.exclude + \
+                        ('' if self.exclude[-1]=='/' else '/'))
+        else:
+            return self.pattern.match(other) is not None
+
+
 class Merger(ConfigParser):
-    def __init__(self, output_dir, defaults=None, printer=logger.info):
+    def __init__(self, output_dir=None, root_dir=None, defaults=None, printer=logger):
         ConfigParser.__init__(self, defaults)
         self.output_dir = output_dir
+        self.root_dir = root_dir
         self.printer = printer
-        self.reverse_included = dict()
         
     @classmethod
-    def from_fn(cls, fn, output_dir, defaults=None, printer=logger.info):
+    def from_fn(cls, fn, output_dir=None, root_dir=None, defaults=None, printer=logger):
         """Load up a list of config filenames in our merger"""
-        merger = cls(output_dir, defaults=defaults, printer=printer)
+        merger = cls(output_dir, root_dir, defaults=defaults, printer=printer)
         if isinstance(fn, basestring):
             fn = fn,
         fns = merger.read(fn)
@@ -46,23 +65,23 @@ class Merger(ConfigParser):
         return merger
 
     @classmethod
-    def from_resource(cls, resource_name, output_dir, requirement=REQ, defaults=None, printer=logger.info):
+    def from_resource(cls, resource_name, output_dir=None, root_dir=None, requirement=REQ, defaults=None, printer=logger):
         conf = pkg_resources.resource_stream(requirement, resource_name)
-        merger = cls(output_dir, defaults=defaults, printer=printer)
+        merger = cls(output_dir, root_dir, defaults=defaults, printer=printer)
         merger.readfp(conf)
         return merger
 
     def make_sourcefile(self, sourcedir, filepath, exclude):
-        self.printer("Importing: %s" % filepath)
-        return SourceFile(sourcedir, filepath, exclude)
+        self.printer.debug("Importing: %s" % filepath)
+        return SourceFile(self.root_dir, sourcedir, filepath, exclude)
     
-    def merge(self, cfg, depmap=None):
+    def extract_deps(self, cfg, depmap=None):
         #@@ this function needs to be decomposed into smaller testable bits
         sourcedirs = cfg['root']
 
         # assemble all files in source directory according to config
         include = cfg.get('include', tuple())
-        exclude = cfg['exclude']
+        exclude = [Exclude(e) for e in cfg['exclude']]
         all_inc = cfg['first'] + cfg['include'] + cfg['last']
         files = {}
         implicit = False
@@ -72,7 +91,7 @@ class Merger(ConfigParser):
 
         for sourcedir in sourcedirs:
             newfiles = []
-            for filepath in jsfiles_for_dir(sourcedir):
+            for filepath in jsfiles_for_dir(os.path.join(self.root_dir, sourcedir)):
                 fitem = filepath, srcfile = filepath, self.make_sourcefile(sourcedir, filepath, exclude),
                 if implicit and not filepath in exclude:
                     all_inc.append(filepath)
@@ -87,10 +106,10 @@ class Merger(ConfigParser):
             complete = True
             for filepath, info in files.items():
                 for path in info.include + info.requires:
-                    if path not in cfg['exclude'] and not files.has_key(path):
+                    if path not in exclude and not files.has_key(path):
                         complete = False
                         for sourcedir in sourcedirs:
-                            if os.path.exists(os.path.join(sourcedir, path)):
+                            if os.path.exists(os.path.join(self.root_dir, sourcedir, path)):
                                 files[path] = self.make_sourcefile(sourcedir, path, exclude)
                                 break
                         else:
@@ -103,11 +122,11 @@ class Merger(ConfigParser):
 
         
         # get tuple of files ordered by dependency
-        self.printer("Sorting dependencies.")
+        self.printer.debug("Sorting dependencies.")
         order = [x for x in tsort.sort(dependencies)]
 
         # move forced first and last files to the required position
-        self.printer("Re-ordering files.")
+        self.printer.debug("Re-ordering files.")
         order = cfg['first'] + [item
                      for item in order
                      if ((item not in cfg['first']) and
@@ -119,24 +138,31 @@ class Merger(ConfigParser):
         ## Make sure all imports are in files dictionary
         for part in parts:
             for fp in cfg[part]:
-                if not fp in cfg['exclude'] and not files.has_key(fp):
+                if not fp in exclude and not files.has_key(fp):
                     raise MissingImport("File from '%s' not found: %s" % (part, fp))
-        
-        ## Header inserted at the start of each file in the output
-        HEADER = "/* " + "=" * 70 + "\n    %s\n" + "   " + "=" * 70 + " */\n\n"
 
         ## Output the files in the determined order
         result = []
         for fp in order:
-            f = files[fp]
-            self.printer("Exporting: " + f.filepath)
+            result.append(files[fp])
+
+        return result
+
+
+    def merge(self, cfg, depmap=None):
+        ## Header inserted at the start of each file in the output
+        HEADER = "/* " + "=" * 70 + "\n    %s\n" + "   " + "=" * 70 + " */\n\n"
+        result = []
+        files = self.extract_deps(cfg, depmap)
+        for f in files:
+            self.printer.debug("Exporting: " + f.filepath)
             result.append(HEADER % f.filepath)
             source = f.source
             result.append(source)
             if not source.endswith("\n"):
                 result.append("\n")
 
-        self.printer("\nTotal files merged: %d " % len(files))
+        self.printer.debug("\nTotal files merged: %d " % len(files))
         merged = "".join(result)
         if cfg['closure']:
             merged = '(function(){%s})();' % merged
@@ -160,7 +186,7 @@ class Merger(ConfigParser):
         return "\n".join(x for x in merged.split('\n') if not DEP_LINE.match(x))
 
     def compress(self, merged, plugin="default", cfg=None):
-        self.printer("Compressing with %s" %plugin)
+        self.printer.debug("Compressing with %s" %plugin)
         ep_map = pkg_resources.get_entry_map(DIST, "jstools.compressor")
         args = None
         func = ep_map.get(plugin).load()
@@ -168,7 +194,7 @@ class Merger(ConfigParser):
 
     def do_section(self, section, cfg):
         header = "Building %s" % section
-        self.printer("%s\n%s" % (header, "-" * len(header)))
+        self.printer.debug("%s\n%s" % (header, "-" * len(header)))
         merged = self.merge(cfg)
         if cfg.has_key('output'):
             outputfilename = cfg['output']
@@ -221,22 +247,23 @@ class Merger(ConfigParser):
         seen = []
         for name in newfiles:
             print >> catted, cat[name]
-            licout = lic[name]
-            if licout not in seen: #slow?
-                print >> license, licout
-                seen.append(licout)
+            if name in lic:
+                licout = lic[name]
+                if licout not in seen: #slow?
+                    print >> license, licout
+                    seen.append(licout)
 
 
         merged = catted.getvalue()
         if not uncompressed:
-            self.printer("Compressing %s" %outputfilename)
+            self.printer.debug("Compressing %s" %outputfilename)
             merged = self.compress(merged, compressor, self)
         elif strip_deps:
             merged = self.strip_deps(merged)
         merged_lic = license.getvalue()
         merged = "%s\n%s" %(merged_lic, merged)
 
-        self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
+        self.printer.info("Writing to %s (%d KB)" % (outputfilename, int(len(merged) / 1024)))
         sfb = file(outputfilename, "w").write(merged)
         newfiles = [outputfilename]
             
@@ -251,25 +278,34 @@ class Merger(ConfigParser):
 
             outputfilename, merged = self.do_section(section, cfg)
             if not uncompressed:
-                self.printer("Compressing %s" %outputfilename)
+                self.printer.debug("Compressing %s" %outputfilename)
                 merged = self.compress(merged, compressor, self)
             elif strip_deps:
                 merged = self.strip_deps(merged)
-            self.printer("Writing to %s (%d KB).\n" % (outputfilename, int(len(merged) / 1024)))
+            self.printer.info("Writing to %s (%d KB)" % (outputfilename, int(len(merged) / 1024)))
             if license:
-                self.printer("Adding license file: %s" %cfg['license'])
+                self.printer.debug("Adding license file: %s" %cfg['license'])
                 merged = "\n".join((license, merged))
             file(outputfilename, "w").write(merged)
                 
             newfiles.append(outputfilename)
         return newfiles
 
-    def run(self, uncompressed=False, single=None, strip_deps=True, concatenate=None, compressor="default"):
+    def list_run(self, sections):
+        newfiles = []
+        for section in sections:
+            cfg = self.make_cfg(section)
+            newfiles += [f.fullpath for f in self.extract_deps(cfg)]
+        return newfiles
+
+    def run(self, uncompressed=False, single=None, strip_deps=True, concatenate=None, compressor="default", list_only=False):
         sections = self.js_sections()
         if single is not None:
             assert single in sections, ValueError("%s not in %s" %(single, sections))
             sections = [single]
             
+        if list_only:
+            return self.list_run(sections)
         if concatenate:
             return self.cat_run(concatenate, sections, uncompressed, strip_deps, compressor)
         else:
@@ -284,15 +320,26 @@ class SourceFile(object):
     -- use depmap if given
     """
 
-    def __init__(self, sourcedir, filepath, exclude, depmap=None):
+    def __init__(self, root_dir, sourcedir, filepath, exclude, depmap=None):
         """
         """
         self.filepath = filepath
+        self.fullpath = os.path.join(sourcedir, filepath)
+        self.abspath = os.path.join(root_dir, self.fullpath)
         self.exclude = exclude
-        self.source = open(os.path.join(sourcedir, filepath), "U").read()
+        self._source = None
         self._requires = _marker
         self._include = _marker
         self.depmap = depmap
+
+    @property
+    def source(self):
+        """
+        Provides lazy reading of the source file
+        """
+        if self._source is None:
+            self._source = open(self.abspath, "U").read()
+        return self._source
 
     @property
     def requires(self):
@@ -302,7 +349,7 @@ class SourceFile(object):
         """
         req = getattr(self, '_requires', None)
         if req is _marker:
-            self._requires = [x for x in RE_REQUIRE.findall(self.source)\
+            self._requires = [x.strip() for x in RE_REQUIRE.findall(self.source)\
                               if x not in self.exclude]
         return self._requires
 
@@ -313,7 +360,7 @@ class SourceFile(object):
         """
         req = getattr(self, '_include', None)
         if req is _marker:
-            self._include = [x for x in RE_INCLUDE.findall(self.source) \
+            self._include = [x.strip() for x in RE_INCLUDE.findall(self.source) \
                              if x not in self.exclude]
                                    
         return self._include

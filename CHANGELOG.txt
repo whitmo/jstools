@@ -1,3 +1,31 @@
+2011-10-06 elemoine  <eric.lemoine@camptocamp.com>
+
+    * make it possible to supply multiple file paths in the buildout "config" var
+
+2011-10-06 bbinet  <bruno.binet@camptocamp.com>
+
+    * add --base-dir option which sets a base directory for root dirs
+
+2011-10-06 bbinet  <bruno.binet@camptocamp.com>
+
+    * add support for a --list-only option which outputs the list
+      javascript files that would have been merged
+    * activate the concatenate feature by passing the concat option to
+      merger.run
+
+2011-03-30 bbinet  <bruno.binet@camptocamp.com>
+
+    * fix trailing space bug in @requires/@include statements
+
+2011-03-22 fredj  <frederic.junod@camptocamp.com>
+
+    * refactor the python loggers.
+
+2011-11-17  bbinet  <bruno.binet@camptocamp.com>
+
+	* Add support for directories exclusion
+	* Add support for regexp files exclusion
+
 2009-06-17  whit  <whit@opengeo.org>
 
 	* Add implicit file inclusion to merge.py.  In a config defines no
